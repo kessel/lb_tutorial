@@ -1,3 +1,113 @@
-\chapter{Introduction}
-Here we write a nice introduction and other fancy things 
+\chapter{Electro-osmotic flow in a slit pore}
+Electro-osmotic flow (EOF) is the motion of water (or another liquid)
+induced by an electric field. It can occur e.g. in porous media,
+in synthetic capillaries and in vicinity of charged surfaces.
+Charged objects in an electrolyte solution attract ions of one
+species and repel ions of the other species, which gives rise
+to a net charge density in its neighbourhood. If an external
+electric field is applied, these ions are accelerated in the direction
+of the electric field (or oppositely if negatively charged) which
+causes also an acceleration of the surrounding water. In regions
+with zero net charge, the force on the fluid exerted by both ion
+species cancels, thus charged interfaces are necessary.
+
+Conceptually electro-osmotic flow is closely related to electrophoresis
+where a charged object, e.g. a polyelectrolyte, is moved by an
+electric field and the surrounding counterions create a flow field
+in the opposite direction. 
+
+In this exercise the electrokinetic equations, that allow for a classical
+description of the phenomenon, are introduced and you will learn
+how to simulate this effect with \ES{} with the LBM. The special case of
+planar charged walls in the regime of low salt concentration can
+be solved analytically and you will see that we can reproduce the
+classical results quite well, but you will also learn about the
+deficiencies of both approaches. We will concentrate on the case
+where only one species of ions (counterions) is present. The generalization
+to multiple species however is straightforward.
+
+\section{The electrokinetic equations}
+We want to describe a system in which ions can diffuse under an
+applied field embedded in a fluid. We therefore assume that a 
+linear convection diffusion is valid:
+\begin{equation}
+  \vec{j}=-D \nabla c + \mu ze c \vec{E} + c \vec{u}
+\end{equation}
+Here $j$ corresponds to the ion flux density, $D$ corresponds 
+to the diffusion coefficient of the ions,
+$c$ to their concentration, $\mu$ to their (electrophoretic)
+mobility, $\vec{E}$ to the local electric field and $\vec{u}$
+to the fluid velocity.
+
+The fluid fulfills the incompressible Navier-Stokes equation:
+Here the term $c vec{E}$ appears as source term due
+to the acceleration of the fluid caused by the ions. 
+
+For the electrostatic potential we make the following
+mean field approximation: The electric potential is 
+caused not by single ions, but their density. This means
+every ion is not exposed to the instantaneous potential
+but the smeared out potential of all other ions. Then the Poisson
+equation reads as:
+\begin{equation}
+  \Delta \Phi = -c/\varepsilon
+  \label{asdf}
+\end{equation}
+We will later
+see that this approximation can be overcome if we move
+from a continuum description to a molecular dynamics simulation
+of explicit ions.
+
+This set of coupled partial differential equations is called
+the electrokinetic equations. 
+
+\section{The slit pore geometry}
+We want to investigate the simplest case where EOF occurs:
+The flow water through the volume between two parallel
+charged planes in the $xy$-plane. We assume that the planes are infinitely
+extended in the directions parallel to the plane and that
+the number of ions exactly cancels the charge of both planes
+and that the external electric field is exerted in $x$ direction
+and that the position of the plates is at $z=\pm l/2$.
+The translational invariance allows to greatly simplify the
+electrokinetic equations:
+\begin{eqnarray}
+  u_z = u_y = 0 \\
+  j_z = 0 \doublerightarrow +D \nabla c + \mu ze c \partial_z \Phi = 0
+  \partial_z \Phi = -c/\varepsilon \\
+  \partial_z^2 u_x = zeEc
+  \label{EOF}
+\end{eqnarray}
+This set of ordinary differential equations is almost decoupled, 
+and the ion concentration profile $c\left(z\right)$ is independent
+of the fluid velocity. With the Einstein relation $D=\mu kT$ it the
+Poisson equation can be written in the following well known form:
+\begin{equation}
+  \partial_z^2 Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
+\end{equation}
+which is the one-dimensional Poisson-Boltzmann equation. One can say:
+The density of the ions is proportional to their associated
+Boltzmann factor. The factor $c_0$ appears as integration constant
+and can be chosen to assure charge neutrality.
+
+For planes with charge density $\sigma$ this can be solved by:
+Here the parameter $asdf$ has to fulfill the following transcendental
+equation:
+Integrating the charge density twice yield the fluid flow field
+in the direction parallel to the applied field:
+Here the integration constants were chosen so that no-slip boundary
+conditions are fulfilled a $\pm l/2$.
+\section{Simulating the system with \ES{}}
+To simulate the system with on the LB+MD we have almost all
+ingredients onboard: In previous tutorials we have learned how
+to deal with charged particles, in the last section
+we have learnt how to implement planar walls.
+
+
+
+Classical description:
+Poisson-Boltzmann equation
+Source term in Stokes equation
+
+In the geometry we are 
 

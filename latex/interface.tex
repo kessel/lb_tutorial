@@ -1,0 +1,38 @@
+
+
+\section{The LB interface in \ES{}}
+\ES{} has three main commands for the LB module: 
+lbfluid, lbnode, and lb_boundary.
+lbfluid is mainly used to set up parameters and does everything that
+concerns the whole fluid. lbnode involves readout and manipulation of
+single LB cells. lb_boundary allows to set boundaries, currently only
+the bounce back boundary method is implemented to model
+no-slip walls. All functions do quite exactly what one would 
+assume they do, so we just cite the usage from the \ES{} manual here.
+
+Important Notice: All commands of the LB interface use
+MD units. This is convenient, as e.g. a particular 
+viscosity can be set and the LB time step can be changed without
+altering the viscosity. On the other hand this is a source
+of a plethora of mistakes: The LBM is only reliable in a certain 
+range of parameters (in LB units) and the unit conversion
+may take some of them far out of this range. So not that you always
+have to assure that you are not messing with that!
+
+One brief example: a certain velocity may be 10 in MD units.
+If the LB time step is 0.1 in MD units, and the lattice constant
+is 1, then it corresponds to a velocity of 1 in LB units. 
+This the maximum velocity of the discrete basis set and therefore
+causes numerical instabilities, like negative populations.
+
+\section{LB Bascis}
+Set up an LB fluid with a 16x16x16 lattice. 
+Set the temperature, viscosity and to 1.
+
+All cells are initialized in equilibrium. Investigate the
+equilibrium distribution in population space and in mode space.
+
+Calculate the autocorrelation function of the stress tensor
+Can you confirm the Landau-Lifshitz fluctuation formula
+
+Now calculate the autocorrelation function 
