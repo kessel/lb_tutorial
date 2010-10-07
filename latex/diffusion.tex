@@ -1,4 +1,160 @@
+\chapter{The LBM in brief}
+Here we want to repeat a few very basic facts about the LBM. 
+You will find much better introductions in various books and
+articles, e.g. \cite{succi, duenweg}. It will however help clarifying 
+our choice of words and we will eventually say something about the 
+implementation. It is very loosely written, with the goal that
+the reader understands how the LBM works and what \ES{} does without
+being precise with all details. 
 
-\chapter{Particle Diffusion}
-Here we write a nice introduction and other fancy things 
+The LBM essentially consists in solving a fully discretized
+version of the linearized Boltzmann equation. The Boltzmann equation
+describes the time evolution of the one particle distribution
+function, which is the probability to find a molecule in a phase
+space volume $\leftf(x,p\right)\d x \d p$. In the context of
+LB is useful to apply a slightly different normalization of
+the one particle distribution function: The function $f$ is normalized
+so that the integral over the whole phase space is the total 
+number of particles:
+\begin{equation*}
+  \int \leftf(x,p\right)\d x \d p = N,
+\end{equation*}
+so that the quantity $\leftf(x,p\right)\d x \d p$ corresponds
+to the number of particles in this particular cell of the phase
+space, the population. \\
+
+The LBM discretizes the Boltzmann equation not only in real
+space (the lattice!) and time, but also the velocity space is discretized 
+in a surprisingly small number of velocities, in 3D typically
+19, sometimes more, rarely less. 
+Mostly we will refer to the three dimensional model with a discrete
+set of 19 velocities, which is conventionally called D3Q19.
+These velocities
+are chosen so that they correspond the movement from one lattice
+node another one. A two step scheme is used to transport
+information through the system: In the streaming step
+the particles ( in terms of populations ) are transported
+to the cell where they corresponding velocity points to. 
+In the collision step, the distribution functions
+in each cell are relaxed towards the local thermodynamic
+equilibrium. This will be described in more detail below.
+
+The important hydrodynamic properties, the density, the fluid velocity,
+the pressure tensor can be calculated quite straightforward from
+the populations: They just correspond the to the moments
+of the distribution function: 
+\begin{align}
+  \rho = \sum f_i \\
+  \vec{u} = \sum f_i \vec{c_i} \\
+  \vec{\Pi}^{\alpha \beta} = \sum f_i \vec{c_i}{\alpha}\vec{c_i}{\beta} \\
+  \label{eq:fields}
+\end{align}
+We will sometimes call these quantities the hydrodynamic fields.
+Note that the pressure tensor is symmetric.
+It is easy to see that these equations are linear transformations
+of the $f_i$ and that they carry the most important information. They
+are 10 independent variables, but this is not enough to store the
+full information of 19 populations. Therefore 9 additional quantities
+are introduced. Together they form a different basis set of the
+19-dimensional population space. This new basis set is called
+the modes. Indeed the most practical basis is a little bit different:
+It contains the trace of the pressure tensor and two orthogonal 
+vectors instead of the three diagonal elements of the pressure 
+tensor. The 9 extra modes are referred to as kinetic modes or
+ghost modes.
+
+The part that is now still missing is the collision part, where
+the actual physics happens. For the LBM it is assumed that
+the collision process linearly relaxes the populations to the local
+equilibrium, thus that it is a linear (=matrix) operator 
+acting on the populations in each LB cell. It should conserve 
+the particle number and the momentum. At this point it is clear
+why the mode space is helpful. A 19 dimensional matrix that
+conserves the first 4 modes (with the eigenvalue 1) can just be written
+down. Some struggle with lattice symmetries show that four independent
+variables can be chosen to characterize the linear relaxation
+process which are still compatible with the prerequisite that
+the fluid should be isotropic: Two of them are closely related to 
+the shear and bulk viscosity of the fluid, and two of them
+do not have a direct physical equivalent. They are just called
+relaxation rates of the kinetic model.
+
+
+particle coupling \\
+
+units \\
+
+
+\chapter{Polymer Diffusion}
+In these exercises we want to use the LBM-MD-Hybrid to reproduce a classic
+result of polymer physics: The dependence of the diffusion coefficient
+of a polymer on its chain length. If no hydrodynamic interactions
+are not present, one expects a scaling law $D \propto N^{-1}$ and if 
+they are present, a scaling law $D \propto N^{\nu}$ is expected. 
+Here $\nu$ is the Flory exponent that plays a very prominent role
+in polymer physics, which has a value of $\sim 3/5$ in good solvent
+conditions. Discussions of these scaling laws can be found
+in polymer physics textbooks like \cite{degennes, doi, rubinstein}.
+
+
+We want to determine the diffusion coefficient from the mean square
+distance that a particle travels in the time $t$. For large $t$ it should
+be proportional to the time and the diffusion coefficient occurs as 
+prefactor: 
+\begin{equation}
+  from Frenkelsmit
+  \label{eq:msd}
+\end{equation}
+This equation can be found in virtually any simulation textbook, as 
+\cite{frenkel}
+We will therefore set up a polymer in an LB, simulate for an appropriate
+amount of time, calculate the mean square displacement as a function of
+time and obtain the diffusion coefficient from a linear fit. However
+we make a couple of steps in between and divide the full problem in 
+subproblems that allow to (hopefully) fully understand the process.
+
+\section{Step 1: Diffusion of a single particle}
+Our first step is to investigate the diffusion of a single particle
+that is coupled to an LB fluid with the point coupling method.
+Investigate the script single_particle_diffusion.tcl.
+
+In this script an LB fluid and a single particle is created and LB is
+used to thermostat the system. The random forces on the particle and
+within the LB fluid will cause the particle to move, and its position
+is recorded in the file pos.dat. Run the simulation script for 10000 steps
+and use the helper script msd.pl to calculate the MSD. Use gnuplot
+to investigate the curve:
+
+plot pos.dat
+plot msd_pos.dat
+
+Where is the crossover between ballistic motion and brownian motion?
+Use a linear fit to determine the diffusion coefficient:
+f(x)=a*x+b
+fit [10:] msd_pos.dat via a,b
+
+Now change the box size from 16 to 8, 24, 32. What can you observe?
+Can you explain your observation?
+What happens if you replace the lb thermostat (and the LB fluid)
+by a Langevin thermostat?
+
+\section{Step 2: Understanding the method better}
+Run the simulation again with different values for the friction
+coefficient, e.g. 1. 5. 20. 50. Calculate the diffusion
+coefficient for all cases and use gnuplot to make a plot of
+$D$ as a function of $\gamma$. What do you observe?
+The tiny helper script D.sh will help you with that. It contains
+a (quite ugly) gnuplot one-liner that does the fitting and just
+returns the slope. Now keep the friction coefficient fixed and
+change the viscosity of the fluid. Make a plot.
+
+\section{Step 3: The long time tail of the velocity autocorrelation function}
+
+\section{Step 4: Setting up a polymer}
+
+\section{Step 5: Setting up a self-avoiding polymer}
+
+\section{Step 6: Diffusion of polymers}
+
+
 
