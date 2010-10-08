@@ -1,0 +1,130 @@
+\chapter{The LBM in brief}
+Here we want to repeat a few very basic facts about the LBM. 
+You will find much better introductions in various books and
+articles, e.g. \cite{succi, duenweg}. It will however help clarifying 
+our choice of words and we will eventually say something about the 
+implementation. It is very loosely written, with the goal that
+the reader understands how the LBM works and what \ES{} does without
+being precise with all details. 
+
+The LBM essentially consists in solving a fully discretized
+version of the linearized Boltzmann equation. The Boltzmann equation
+describes the time evolution of the one particle distribution
+function, which is the probability to find a molecule in a phase
+space volume $\left(x,p\right)\d x \d p$. In the context of
+LB is useful to apply a slightly different normalization of
+the one particle distribution function: The function $f$ is normalized
+so that the integral over the whole phase space is the total 
+number of particles:
+\begin{equation*}
+  \int f\left(x,p\right)\d x \d p = N,
+\end{equation*}
+so that the quantity f$\left(x,p\right)\d x \d p$ corresponds
+to the number of particles in this particular cell of the phase
+space, the population. \\
+
+The LBM discretizes the Boltzmann equation not only in real
+space (the lattice!) and time, but also the velocity space is discretized 
+in a surprisingly small number of velocities, in 3D typically
+19, sometimes more, rarely less. 
+Mostly we will refer to the three dimensional model with a discrete
+set of 19 velocities, which is conventionally called D3Q19.
+These velocities
+are chosen so that they correspond the movement from one lattice
+node another one in one time step. A two step scheme is used to transport
+information through the system: In the streaming step
+the particles ( in terms of populations ) are transported
+to the cell where they corresponding velocity points to. 
+In the collision step, the distribution functions
+in each cell are relaxed towards the local thermodynamic
+equilibrium. This will be described in more detail below.
+
+The important hydrodynamic properties, the density, the fluid momentum density,
+the pressure tensor can be calculated quite straightforward from
+the populations: They just correspond the to the moments
+of the distribution function: 
+\begin{align}
+  \rho &= \sum f_i \\
+  \vec{j} = \rho \vec{u} &= \sum f_i \vec{c_i} \\
+  \Pi^{\alpha \beta} &= \sum f_i \vec{c_i}^{\alpha}\vec{c_i}^{\beta} 
+  \label{eq:fields}
+\end{align}
+Here the Greek indices denotes the cartesian axis and the
+Latin indices indicate the number in the disrete velocity set.
+We will sometimes call these quantities the hydrodynamic fields.
+Note that the pressure tensor is symmetric.
+It is easy to see that these equations are linear transformations
+of the $f_i$ and that they carry the most important information. They
+are 10 independent variables, but this is not enough to store the
+full information of 19 populations. Therefore 9 additional quantities
+are introduced. Together they form a different basis set of the
+19-dimensional population space. This new basis set is called
+the modes $m_i$. Indeed the most practical basis is a little bit different:
+It contains the trace of the pressure tensor and two orthogonal 
+vectors instead of the three diagonal elements of the pressure 
+tensor. The 9 extra modes are referred to as kinetic modes or
+ghost modes. It is possible to explicitly write down the 
+base transformation matrix, and its inverse and in the \ES{}
+LB implementation this basis transformation is made for every
+cell in every LB step. It is possible to write a code that does not
+need this basis transformation, but it has been shown, that this
+only costs 20\% of the computational time and allows for 
+larger flexibility.
+
+The part that is now still missing is the collision part, where
+the actual physics happens. For the LBM it is assumed that
+the collision process linearly relaxes the populations to the local
+equilibrium, thus that it is a linear (=matrix) operator 
+acting on the populations in each LB cell. It should conserve 
+the particle number and the momentum. At this point it is clear
+why the mode space is helpful. A 19 dimensional matrix that
+conserves the first 4 modes (with the eigenvalue 1) is diagonal in the
+first four rows and columns.
+Some struggle with lattice symmetries show that four independent
+variables can be chosen to characterize the linear relaxation
+process which are still compatible with the prerequisite that
+the fluid should be isotropic: Two of them are closely related to 
+the shear and bulk viscosity of the fluid, and two of them
+do not have a direct physical equivalent. They are just called
+relaxation rates of the kinetic model.
+
+
+The equilibrium distribution to which the populations relax 
+are obtained from maximizing the information entropy 
+$\sum f_i \log f_i$ under the constraint that the density
+and velocity assume their particular instantaneous 
+values. This leads to the following expression for the
+equilibrium populations:
+
+In mode space the equilibrium distribution is again very 
+easily formulated: The modes 5-19 take the value 0 in equilibrium.
+
+Then the collision operator is diagonal:
+\begin{align*}
+  m^\star_i &= \gamma_i m_i  \\
+  \gamma_1=\dots=\gamma_4&=1 \\
+  \gamma_5&=\gamma_\text{b} \\
+  \gamma_6=\dots=\gamma_{10}&=\gamma_\text{s} \\
+  \gamma_{11}&=\gamma_\text{even} \\
+  \gamma_{12}=\dots = \gamma_{19}&=\gamma_\text{odd} \\
+\end{align*}
+
+To include hydrodynamic fluctuations of the fluid, every LB node 
+random fluctuations are added to the modes $4\dots 19$ so that
+the LB fluid temperature is well defined and the corresponding
+fluctuation formula, according to the fluctuation dissipation theorem holds.
+An extensive discussion of this topic is found in \cite{schiller08a}
+
+Particles are coupled to the LB fluid with the force coupling:
+The fluid velocity at the point where a particle is, is calculated 
+by a multilinear interpolation and a force is applied on the particle
+that is proportional to the velocity difference between particle 
+and fluid:
+\begin{equation}
+  \vec{F} = - \gamma \left(v-u\right) 
+\end{equation}
+The opposite force is distributed on the surrounding LB nodes. Additionally
+a random force is added to maintain a constant temperature, again according
+to the fluctuation dissipation theorem.
+
+
