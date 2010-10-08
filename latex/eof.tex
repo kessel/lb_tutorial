@@ -11,8 +11,8 @@ causes also an acceleration of the surrounding water. In regions
 with zero net charge, the force on the fluid exerted by both ion
 species cancels, thus charged interfaces are necessary.
 
-Conceptually electro-osmotic flow is closely related to electrophoresis
-where a charged object, e.g. a polyelectrolyte, is moved by an
+Conceptually electro-osmotic flow is closely related to electrophoresis,
+where a charged object (e.g. a polyelectrolyte) is moved by an
 electric field and the surrounding counterions create a flow field
 in the opposite direction. 
 
@@ -40,7 +40,7 @@ mobility, $\vec{E}$ to the local electric field and $\vec{u}$
 to the fluid velocity.
 
 The fluid fulfills the incompressible Navier-Stokes equation:
-Here the term $c vec{E}$ appears as source term due
+Here the term $c \vec{E}$ appears as source term due
 to the acceleration of the fluid caused by the ions. 
 
 For the electrostatic potential we make the following
@@ -83,7 +83,7 @@ and the ion concentration profile $c\left(z\right)$ is independent
 of the fluid velocity. With the Einstein relation $D=\mu kT$ it the
 Poisson equation can be written in the following well known form:
 \begin{equation}
-  \partial_z^2 Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
+  \partial_z^2 \Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
 \end{equation}
 which is the one-dimensional Poisson-Boltzmann equation. One can say:
 The density of the ions is proportional to their associated
@@ -96,7 +96,7 @@ equation:
 Integrating the charge density twice yield the fluid flow field
 in the direction parallel to the applied field:
 Here the integration constants were chosen so that no-slip boundary
-conditions are fulfilled a $\pm l/2$.
+conditions are fulfilled a $z = \pm l/2$.
 
 Before simulating the full system, we make two steps in between, because
 we need to know how to have walls in an \ES{} simulation. First we want
@@ -104,12 +104,12 @@ to simulate Poisseuille flow, the famous parabolic flow profile, in a slit
 geometry and then we want to simulation particles between two walls. Finally
 we combine it all to simulate the full system.
 \section{Poiseuille flow \ES{}}
-Poisseuille flow is the flow through a pipe (in our case) a slit
+Poisseuille flow is the flow through a pipe or (in our case) a slit
 under a homogenous force density, e.g. gravity. In the limit of small Reynolds
 numbers, the flow can be described with the Stokes equation. 
 We assume the slit being extended in $y$ and $z$ direction and a force
 density in $y$ direction. No slip-boundary conditions  (i.e. $\vec{u}=0$)
-are located at $\pm l/2$.
+are located at $z = \pm l/2$.
 Assuming invariance in $y$ and $z$ direction and a steady state 
 the stokes equation simplifies to:
 \begin{equation}
@@ -117,9 +117,9 @@ the stokes equation simplifies to:
 \end{equation}
 where $f$ denotes the force density and $\eta$ the dynamic viscosity.
 This can be integrated twice and the integration constants are chosen
-so that $u_y=0$ at $\pm l/2$ and we obtain:
+so that $u_y=0$ at $z = \pm l/2$ and we obtain:
 \begin{equation}
-  u_y = u_0 - 
+  u_y = u_0 - WTF???
 \end{equation}
 With that knowledge investigate the script poisseuille.tcl.
 Note the \lstinline{lb_boundary} command. Two walls are created
@@ -142,7 +142,7 @@ close $ofile
 Use gnuplot to fit a parabolic profile. Can you confirm the analytic solution?
 
 \section{Constraints in \ES{}}
-The \lstinline|constraint| command of \ES{} create walls in the system.
+The \lstinline|constraint| command of \ES{} creates walls in the system.
 They have a particular ``particle'' type and interact with the particles
 present in the system with the defined potential. This means the distance
 of every particle to the constraint is calculated and used as the distance 
@@ -189,7 +189,7 @@ create particles and walls in the system. Place the particle
 walls at 2.5 and 14.5. Charge the particles so that
 the overall system is neutral, but remove the external force. 
 Use a Langevin thermostat
-to equilibrate the system. What happens during the equilbration?
+to equilibrate the system. What happens during the equilibration?
 The equilibration should be done in 10000 MD steps.
 
 Use the density profile method from \lstinline|boundaries.tcl| 

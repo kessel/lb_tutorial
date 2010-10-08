@@ -1,4 +1,7 @@
 \chapter{The LBM in brief}
+
+\subsection*{Linearized Boltzmann equation}
+
 Here we want to repeat a few very basic facts about the LBM. 
 You will find much better introductions in various books and
 articles, e.g. \cite{succi, duenweg}. It will however help clarifying 
@@ -12,7 +15,7 @@ version of the linearized Boltzmann equation. The Boltzmann equation
 describes the time evolution of the one particle distribution
 function, which is the probability to find a molecule in a phase
 space volume $\left(x,p\right)\d x \d p$. In the context of
-LB is useful to apply a slightly different normalization of
+LB, it is useful to apply a slightly different normalization of
 the one particle distribution function: The function $f$ is normalized
 so that the integral over the whole phase space is the total 
 number of particles:
@@ -23,6 +26,8 @@ so that the quantity f$\left(x,p\right)\d x \d p$ corresponds
 to the number of particles in this particular cell of the phase
 space, the population. \\
 
+\subsection*{Discretization}
+
 The LBM discretizes the Boltzmann equation not only in real
 space (the lattice!) and time, but also the velocity space is discretized 
 in a surprisingly small number of velocities, in 3D typically
@@ -31,7 +36,7 @@ Mostly we will refer to the three dimensional model with a discrete
 set of 19 velocities, which is conventionally called D3Q19.
 These velocities
 are chosen so that they correspond the movement from one lattice
-node another one in one time step. A two step scheme is used to transport
+node to another in one time step. A two step scheme is used to transport
 information through the system: In the streaming step
 the particles ( in terms of populations ) are transported
 to the cell where they corresponding velocity points to. 
@@ -51,7 +56,7 @@ of the distribution function:
 \end{align}
 Here the Greek indices denotes the cartesian axis and the
 Latin indices indicate the number in the disrete velocity set.
-We will sometimes call these quantities the hydrodynamic fields.
+We will occasionally refer to these quantities as the hydrodynamic fields.
 Note that the pressure tensor is symmetric.
 It is easy to see that these equations are linear transformations
 of the $f_i$ and that they carry the most important information. They
@@ -65,11 +70,13 @@ vectors instead of the three diagonal elements of the pressure
 tensor. The 9 extra modes are referred to as kinetic modes or
 ghost modes. It is possible to explicitly write down the 
 base transformation matrix, and its inverse and in the \ES{}
-LB implementation this basis transformation is made for every
-cell in every LB step. It is possible to write a code that does not
+LBM implementation this basis transformation is made for every
+cell in every LBM step. It is possible to write a code that does not
 need this basis transformation, but it has been shown, that this
 only costs 20\% of the computational time and allows for 
 larger flexibility.
+
+\subsection*{The second step: collision}
 
 The part that is now still missing is the collision part, where
 the actual physics happens. For the LBM it is assumed that
@@ -80,7 +87,7 @@ the particle number and the momentum. At this point it is clear
 why the mode space is helpful. A 19 dimensional matrix that
 conserves the first 4 modes (with the eigenvalue 1) is diagonal in the
 first four rows and columns.
-Some struggle with lattice symmetries show that four independent
+Some struggling with lattice symmetries shows that four independent
 variables can be chosen to characterize the linear relaxation
 process which are still compatible with the prerequisite that
 the fluid should be isotropic: Two of them are closely related to 
@@ -90,14 +97,14 @@ relaxation rates of the kinetic model.
 
 
 The equilibrium distribution to which the populations relax 
-are obtained from maximizing the information entropy 
+is obtained from maximizing the information entropy 
 $\sum f_i \log f_i$ under the constraint that the density
-and velocity assume their particular instantaneous 
+and velocity are assigned their particular instantaneous 
 values. This leads to the following expression for the
 equilibrium populations:
 
 In mode space the equilibrium distribution is again very 
-easily formulated: The modes 5-19 take the value 0 in equilibrium.
+easily formulated: The modes 5-19 have the value 0 in equilibrium.
 
 Then the collision operator is diagonal:
 \begin{align*}
@@ -109,11 +116,13 @@ Then the collision operator is diagonal:
   \gamma_{12}=\dots = \gamma_{19}&=\gamma_\text{odd} \\
 \end{align*}
 
-To include hydrodynamic fluctuations of the fluid, every LB node 
-random fluctuations are added to the modes $4\dots 19$ so that
+To include hydrodynamic fluctuations of the fluid, 
+random fluctuations are added to the modes $4\dots 19$ on every LB node so that
 the LB fluid temperature is well defined and the corresponding
 fluctuation formula, according to the fluctuation dissipation theorem holds.
 An extensive discussion of this topic is found in \cite{schiller08a}
+
+\subsection*{Particle coupling}
 
 Particles are coupled to the LB fluid with the force coupling:
 The fluid velocity at the point where a particle is, is calculated 

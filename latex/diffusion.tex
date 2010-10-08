@@ -3,7 +3,7 @@
 In these exercises we want to use the LBM-MD-Hybrid to reproduce a classic
 result of polymer physics: The dependence of the diffusion coefficient
 of a polymer on its chain length. If no hydrodynamic interactions
-are not present, one expects a scaling law $D \propto N^{-1}$ and if 
+are present, one expects a scaling law $D \propto N^{-1}$ and if 
 they are present, a scaling law $D \propto N^{\nu}$ is expected. 
 Here $\nu$ is the Flory exponent that plays a very prominent role
 in polymer physics, which has a value of $\sim 3/5$ in good solvent
@@ -20,12 +20,12 @@ prefactor:
   \label{eq:msd}
 \end{equation}
 Here $d$ denotes the dimensionality of the system, in our case 3.
-This equation can be found in virtually any simulation textbook, as 
+This equation can be found in virtually any simulation textbook, like
 \cite{frenkel}
-We will therefore set up a polymer in an LB, simulate for an appropriate
+We will therefore set up a polymer in an LB fluid, simulate for an appropriate
 amount of time, calculate the mean square displacement as a function of
 time and obtain the diffusion coefficient from a linear fit. However
-we make a couple of steps in between and divide the full problem in 
+we make a couple of steps in between and divide the full problem into 
 subproblems that allow to (hopefully) fully understand the process.
 
 \section{Step 1: Diffusion of a single particle}
@@ -33,17 +33,18 @@ Our first step is to investigate the diffusion of a single particle
 that is coupled to an LB fluid with the point coupling method.
 Investigate the script  \lstinline|single_particle_diffusion.tcl|.
 
-In this script an LB fluid and a single particle is created and LB is
+In this script an LB fluid and a single particle are created and LB is
 used to thermostat the system. The random forces on the particle and
 within the LB fluid will cause the particle to move, and its position
-is recorded in the file  \lstinline|pos.dat|. Run the simulation script for 10000 steps
-and use the helper script  \lstinline|msd.pl| to calculate the MSD. Use  \lstinline|gnuplot|
-to investigate the curve:
+is recorded in the file \lstinline|pos.dat|. Run the simulation script
+for 10000 steps and use the helper script \lstinline|msd.pl| with the
+argument \lstinline|pos.dat| to calculate the MSD. Use
+\lstinline|gnuplot| to investigate the curve:
 
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
-plot pos.dat
-plot msd_pos.dat
+plot "pos.dat"
+plot "msd_pos.dat"
 \end{lstlisting}\vspace{0,2cm}
 }
 
@@ -52,7 +53,7 @@ Use a linear fit to determine the diffusion coefficient:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
 f(x)=a*x+b
-fit [10:] msd_pos.dat via a,b
+fit [0.35:] f(x) "msd_pos.dat" via a,b
 \end{lstlisting}\vspace{0,2cm}
 }
 
@@ -67,14 +68,14 @@ it, by plotting it with gnuplot.
 
 \section{Step 2: Understanding the method better}
 Run the simulation again with different values for the friction
-coefficient, e.g. 1. 5. 20. 50. Calculate the diffusion
-coefficient for all cases and use gnuplot to make a plot of
-$D$ as a function of $\gamma$. What do you observe?
-The tiny helper script \lstinline|fit_lin.sh| will help you with that. It contains
-a (quite ugly) gnuplot one-liner that does the fitting and just
-returns the slope. Now keep the friction coefficient fixed and
-change the viscosity of the fluid. Make a plot of the diffusion coefficient
-as a function of the friction parameter.
+coefficient $\gamma$, e.g. 1. 5. 20. 50. Calculate the diffusion
+coefficient for all cases and use gnuplot to make a plot of $D$ as a
+function of $\gamma$. What do you observe?  The tiny helper script
+\lstinline|fit_lin.sh| (with argument \lstinline|pos.dat|) will help
+you with that. It contains a (quite ugly) gnuplot one-liner that does
+the fitting and just returns the slope. Now keep the friction
+coefficient fixed and change the viscosity of the fluid. Make a plot
+of the diffusion coefficient as a function of the friction parameter.
 
 \section{Step 3: The long time tail of the velocity autocorrelation function}
 
@@ -109,14 +110,14 @@ use the random walk: The monomers are set according to a random walk (in 3D)
 with the given distance between adjacent bead positions. The syntax is:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
-polymer 
+  polymer $N_polymers $N_monomers 1.0 types 0 mode RW bond 0 constraints 
 \end{lstlisting}\vspace{0,2cm}
 }
 Using a random walk to create a polymer causes trouble: The random walk may 
 cross itself (or closely approach itself) and the LJ potential is very
-steep. This would enormously raise the potential energy an would make
+steep. This would raise the potential energy enormously and would make
 the monomers shoot through the simulation box. 
-However perform some MD steps with a capped LJ potential, this means 
+However, we can perform some MD steps with a capped LJ potential, this means 
 forces above a certain threshold will be set to the threshold in order to prevent
 the system from exploding. To see how this is done, look at the script 
 \lstinline|polymer_diffusion.tcl|.
@@ -124,7 +125,7 @@ the system from exploding. To see how this is done, look at the script
 Run the script with a polymer of chain length 16 and look at the output files
 which are identical to the output files of the \lstinline|single_particle_diffusion.tcl|
 script. Here a Langevin thermostat is used to keep the temperature constant.
-Use \lstinline|msd.tcl| and \lstinline|fit_lin.sh| to calculate the diffusion
+Use \lstinline|msd.pl| and \lstinline|fit_lin.sh| to calculate the diffusion
 coefficient as a function of the chain length.
 
 
