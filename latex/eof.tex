@@ -97,10 +97,126 @@ Integrating the charge density twice yield the fluid flow field
 in the direction parallel to the applied field:
 Here the integration constants were chosen so that no-slip boundary
 conditions are fulfilled a $\pm l/2$.
-\section{Simulating the system with \ES{}}
-To simulate the system with on the LB+MD we have almost all
-ingredients onboard: In previous tutorials we have learned how
-to deal with charged particles, in the last section
-we have learnt how to implement planar walls.
+
+Before simulating the full system, we make two steps in between, because
+we need to know how to have walls in an \ES{} simulation. First we want
+to simulate Poisseuille flow, the famous parabolic flow profile, in a slit
+geometry and then we want to simulation particles between two walls. Finally
+we combine it all to simulate the full system.
+\section{Poiseuille flow \ES{}}
+Poisseuille flow is the flow through a pipe (in our case) a slit
+under a homogenous force density, e.g. gravity. In the limit of small Reynolds
+numbers, the flow can be described with the Stokes equation. 
+We assume the slit being extended in $y$ and $z$ direction and a force
+density in $y$ direction. No slip-boundary conditions  (i.e. $\vec{u}=0$)
+are located at $\pm l/2$.
+Assuming invariance in $y$ and $z$ direction and a steady state 
+the stokes equation simplifies to:
+\begin{equation}
+  \eta \partial_x^2 u_y = f
+\end{equation}
+where $f$ denotes the force density and $\eta$ the dynamic viscosity.
+This can be integrated twice and the integration constants are chosen
+so that $u_y=0$ at $\pm l/2$ and we obtain:
+\begin{equation}
+  u_y = u_0 - 
+\end{equation}
+With that knowledge investigate the script poisseuille.tcl.
+Note the \lstinline{lb_boundary} command. Two walls are created
+with normal vectors $\left(\pm 1, 0, 0 \right)$. An external force
+is applied to every node. After 1000 LB updates the steady state should
+be reached.
+
+Task: Write a loop that prints the fluid velocity at the nodes (0,0,0) to (16,0,0)
+and the node position to a file. Use the \lstinline|lbnode| command for that. Hint: to write 
+to a file, first open a file and then use the \lstinline|puts| command to write 
+into it. Do not forget to close the file afterwards. Example:
+\vspace{ 0,2cm}
+\begin{lstlisting}[numbers=none]
+set ofile [ open "file.txt" "w" ]
+puts $ofile "hello world!"
+close $ofile
+\end{lstlisting}
+\vspace{ 0,2cm}
+
+Use gnuplot to fit a parabolic profile. Can you confirm the analytic solution?
+
+\section{Constraints in \ES{}}
+The \lstinline|constraint| command of \ES{} create walls in the system.
+They have a particular ``particle'' type and interact with the particles
+present in the system with the defined potential. This means the distance
+of every particle to the constraint is calculated and used as the distance 
+in the interaction potential.
+
+To set up a planar channel just as before one would use the commands:
+\begin{lstlisting}[numbers=none]
+constraint wall 0.5 normal 1. 0. 0. type 1
+constraint wall -8.5 normal -1. 0. 0. type 1
+inter 0 1 lennard-jones 1. 1. 1.225 0.25 0
+\end{lstlisting}
+This wall is felt only by particles of type 0 and has an effective width
+of 6, as the potential goes steeply up at positions 1.5 and 7.5.
+
+The syntax of the wall constraint looks weird at first, because a negative
+distance from the origin (first argument) is given, but the idea is that
+this distance times the normal vector is a point of the plane. For inclined
+walls this syntax is more easy to understand.)
+
+\ES{} complains every time a particle penetrates the wall, as it does not
+expect the particles to do so. This should normally cause no problem. 
+
+To set up a system we have, of course to make sure, that our initial
+configuration obeys the constraints. The easiest thing is to 
+generate particle configurations randomly and repeat this process
+for every particle until a configuration is found, that
+is within the allowed range. Look at the script \lstinline|boundaries.tcl|
+and see how that is solved. What does the script do?
+
+\section{Simulating EOF in \ES{}}
+The last thing that is missing for the simulation of EOF is
+how to create a charged wall. This can be done with
+particles, using the \lstinline|fix| command. The command
+\begin{lstlisting}[numbers=none]
+part 0 pos 1. 1. 1. q 1. fix 1 1 1
+\end{lstlisting}
+create a particle at the position $\left(1,1,1\right)$ with
+charge 1 that is fixed in all the spacial dimensions.
+
+In \lstinline|eof.tcl| two walls are created. Now use what was
+used before to run the final system. Use the particle
+creation method from \lstinline|boundaries.tcl| to
+create particles and walls in the system. Place the particle
+walls at 2.5 and 14.5. Charge the particles so that
+the overall system is neutral, but remove the external force. 
+Use a Langevin thermostat
+to equilibrate the system. What happens during the equilbration?
+The equilibration should be done in 10000 MD steps.
+
+Use the density profile method from \lstinline|boundaries.tcl| 
+to measure the density. Use a production run of 10000 MD steps
+and update the density profile every 100 MD steps.
+
+Investigate it with gnuplot. How does it compare to the 
+PB prediction?
+
+After this add the LB fluid from \lstinline|poisseuille.tcl|.
+Add it before the production cycles, but after the equilbration.
+Now add the external force again to the particles. An run the 
+simulation again. Does the ion density profile change? Would
+you expect it to change? Finally implement a method that averages
+the fluid density profile. Use gnuplot to investigate
+the flow profile. Is it compatible with the theory?
+
+
+
+
+
+
+
+
+
+
+
+
 
 

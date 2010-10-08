@@ -1,14 +1,17 @@
 
 
-\section{The LB interface in \ES{}}
+\chapter{The LB interface in \ES{}}
+In \ES{} the LB scheme and the MD scheme are not synchronized: In one
+LB time step typically several MD steps are performed. This allows to speed
+up the simulations and is adjusted with the parameter \lstinline|tau|.
 \ES{} has three main commands for the LB module: 
  \lstinline|lbfluid|,  \lstinline|lbnode|, and  \lstinline|lb_boundary|.
  \lstinline|lbfluid| is mainly used to set up parameters and does everything that
 concerns the whole fluid.  \lstinline|lbnode| involves readout and manipulation of
 single LB cells.  \lstinline|lb_boundary| allows to set boundaries, currently only
 the bounce back boundary method is implemented to model
-no-slip walls. All functions do quite exactly what one would 
-assume they do, so we just cite the usage from the \ES{} manual here.
+no-slip walls. Additionally the command  \lstinline|thermostat lb| is used to set
+the temperature. 
 
 Important Notice: All commands of the LB interface use
 MD units. This is convenient, as e.g. a particular 
@@ -22,17 +25,110 @@ have to assure that you are not messing with that!
 One brief example: a certain velocity may be 10 in MD units.
 If the LB time step is 0.1 in MD units, and the lattice constant
 is 1, then it corresponds to a velocity of 1 in LB units. 
-This the maximum velocity of the discrete basis set and therefore
+This the maximum velocity of the discrete velocity set and therefore
 causes numerical instabilities, like negative populations.
 
-\section{LB Bascis}
-Set up an LB fluid with a 16x16x16 lattice. 
-Set the temperature, viscosity and to 1.
+Now the commands in more detail.
 
-All cells are initialized in equilibrium. Investigate the
-equilibrium distribution in population space and in mode space.
+\subsection*{The \lstinline|lbfluid| command}
+The \lstinline{lbfluid} command sets global parameters of the LBM. Every
+paramter is given in the form \lstinline|lbfluid name value|. 
+All parameters except for \lstinline|gamma_odd| and  \lstinline|gamma_even|
+are given in MD units. All parameters except for \lstinline|ext_force| accept
+one scalar floating point argument. \\
 
-Calculate the autocorrelation function of the stress tensor
-Can you confirm the Landau-Lifshitz fluctuation formula
+\begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
+\lstinline|dens| & The density of the fluid.\\
+\lstinline|grid| & The lattice constant of the fluid. It is used to determine the number of LB nodes 
+per direction from \lstinline|box_l|. They have to be compatible. \\
+\lstinline|visc| & The kinematic viscosity \\
+\lstinline|tau| & The time step of LB. It has to be larger than the MD time step. \\
+\lstinline|friction| & The friction coefficient $\gamma$ for the coupling scheme. \\
+\lstinline|ext_force| & An external force applied to every node with three components. \\
+\lstinline|gamma_odd| & Relaxation parameter for the odd kinetic modes. \\
+\lstinline|gamma_even| & Relaxation parameter for the even kinetic modes.
+\end{tabular} \\
 
-Now calculate the autocorrelation function 
+A good starting point for an MD time step of 0.01 is the command line
+\vspace{0,2cm}
+\begin{lstlisting}[ numbers=none]
+lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd 0. gamma_even 0.
+\end{lstlisting}
+\vspace{0,2cm}
+
+In combination with walls, it could also be useful to set \lstinline|gamma_odd| and
+\lstinline|gamma_even| to -0.7. E.g. 
+\vspace{0,2cm}
+\begin{lstlisting}[ numbers=none]
+lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd -0.7 gamma_even -0.7 ext_force 0.01 0. 0.
+\end{lstlisting}
+\vspace{0,2cm}
+
+\subsection*{The \lstinline|lbnode| command}
+The \lstinline|lbnode| command allows to inspect and modify single LB nodes The
+general syntax is:
+\vspace{0,2cm}
+\begin{lstlisting}[ numbers=none]
+lbnode X Y Z command arguments
+\end{lstlisting}
+\vspace{0,2cm}
+Note that the indexing in every direction starts with 0. The possible commands are:\\
+\begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
+  print & Print one or several quantities to the TCL interface.\\
+  set & Set one quantity to a particular value (can be a vector)\\
+\end{tabular}\\
+For both commands you have to specify what quantity should be printed
+or modified. Print allows for the following arguments: \\
+\begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
+  \lstinline|rho|\ & the density (scalar). \\
+  \lstinline|u| & the fluid velocity (three floats: $u_x$, $u_y$, $u_z$) \\
+  \lstinline|pi| & the fluid velocity (six floats: $\Pi_{xx}$, $\Pi_{xy}$, $\Pi_{yy}$, $\Pi_{xz}$,  $\Pi_{yz}$,  $\Pi_{zz}$) \\
+  \lstinline|pi_neq| & the nonequilbrium part of the pressure tensor, components as above. \\
+  \lstinline|pop| & the 19 population (check the order from the source code please).
+\end{tabular} \\
+Example:
+The line
+\begin{lstlisting}[ numbers=none]
+puts [ lbnode 0 0 0 print u ]
+\end{lstlisting}
+prints the fluid velocity in node 0 0 0 to the screen.
+The command \lstinline|set| allows to change the density or fluid velocity in a single node. Setting
+the other quantities can easily be implemented.
+Example:
+\begin{lstlisting}[ numbers=none]
+puts [ lbnode 0 0 0 set u 0.01 0. 0.]
+\end{lstlisting}
+\subsection*{The \lstinline|lb_boundary| command}
+The \lstinline|lb_boundary| allows to set boundary conditions for the LB fluid. In general
+periodic boundary conditions are applied in all directions, and only if walls are LB boundaries
+are constructed finite geometries are used. This part of the LB implementation is still experimental,
+so please tell us your experience with it. In general even the simple case of no-slip
+boundary is still an important research topic in the lb community, and in combination with
+point particle coupling not much experience exists. This means: Do research on that topic, play
+around with parameters and find out what happens. 
+
+
+The \lstinline|lb_boundary| command is supposed to resemble exactly the constraint command of 
+\ES{}: Just replace the keyword \lstinline|constraint| with the word \lstinline|lb_boundary| 
+and \ES{} will create walls with the same shape as the corresponding constraint. Example:
+The commands
+\begin{lstlisting}[ numbers=none]
+lb_boundary wall 0.5 0 0 normal 1. 0. 0. 
+lb_boundary wall -8.5 0 0 normal -1. 0. 0. 
+\end{lstlisting}
+create a channel with walls parallel to the $yz$ plane with width 8.
+
+Currently only the so called \emph{link bounce back} method is implemented, where the effective
+hydrodynamic boundary is located midway between two nodes. This is the simplest and yet a 
+rather effective approach for boundary implementation. The \lstinline|lb_boundary| command
+checks for every LB node if it is inside the constraint our outside and flags it as a boundary
+node or not. This means if the lattice constant is set to 1, the above command yields exactly
+the same as this:
+\begin{lstlisting}[ numbers=none]
+lb_boundary wall 0.1 0 0 normal 1. 0. 0. 
+lb_boundary wall -8.1 0 0 normal -1. 0. 0. 
+\end{lstlisting}
+This has to be kept in mind, when you use the LB boundaries.
+
+Currently only the shapes wall, sphere and cylinder are implemented, but to implement the others 
+is straightforward.
