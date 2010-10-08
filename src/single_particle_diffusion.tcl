@@ -1,10 +1,10 @@
 ## check if a command line argument is given
 if { $argc != 1 } {
-  puts "single particle diffusion.tcl"
+  puts "single_particle_diffusion.tcl"
   puts "-----------"
   puts "Diffusion of a single polymer chain in a lattice boltzmann fluid"
   puts "usage:"
-  puts "./Espresso polymer.tcl #nodes"
+  puts "./Espresso single_particle_diffusion.tcl #procs #lb-nodes"
   puts ""
   puts "output: pos.dat v.dat energy.dat"
   puts "The files contain the time elapsed in the simulation and the center"
@@ -28,7 +28,7 @@ set enfile [ open "energy.dat"  "w"]
 
 ## this creates the LB fluid with the parameters
 ## of our choice.
-lbfluid grid 1. dens 1. visc 1. tau 0.1 friction 20.
+lbfluid grid 1. dens 1. visc 1. tau 0.1 friction 50.
 ## this activates the thermalization of the
 ## LB fluid and adds the random forces on the 
 ## particle
@@ -43,7 +43,7 @@ integrate 1000
 puts "Done."
 
 ## Now the production run!
-for { set i 0 } { $i < 3000 } { incr i } {
+for { set i 0 } { $i < 1000 } { incr i } {
   if { $i % 100 == 99 } {
     ## tell the user we are still working
     puts "cycle $i completed"

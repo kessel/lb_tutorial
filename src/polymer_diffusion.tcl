@@ -4,7 +4,7 @@ if { $argc != 2 } {
   puts "-----------"
   puts "Diffusion of a single polymer chain in a lattice boltzmann fluid"
   puts "Please pass the number of monomers as a command line argument!"
-  puts "./Espresso polymer.tcl #nodes #monomers"
+  puts "./Espresso polymer.tcl #procs #monomers"
   puts ""
   puts "output: pos.dat v.dat"
   puts "The files contain the time elapsed in the simulation and the center"
@@ -55,7 +55,7 @@ puts "Warming up the system with LB fluid."
 integrate 1000
 puts "Done."
 
-for { set i 0 } { $i < 8000 } { incr i } {
+for { set i 0 } { $i < 1000 } { incr i } {
   imd positions
     integrate 100
     set vx 0.
