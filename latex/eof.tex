@@ -29,24 +29,32 @@ to multiple species however is straightforward.
 \section{The electrokinetic equations}
 We want to describe a system in which ions can diffuse under an
 applied field embedded in a fluid. We therefore assume that a 
-linear convection diffusion is valid:
+linear convection diffusion equation is valid:
 \begin{equation}
   \vec{j}=-D \nabla c + \mu ze c \vec{E} + c \vec{u}
 \end{equation}
-Here $j$ corresponds to the ion flux density, $D$ corresponds 
+Here $\vec{j}$ corresponds to the ion flux density, $D$ corresponds 
 to the diffusion coefficient of the ions,
 $c$ to their concentration, $\mu$ to their (electrophoretic)
 mobility, $\vec{E}$ to the local electric field and $\vec{u}$
 to the fluid velocity.
 
-The fluid fulfills the incompressible Navier-Stokes equation:
-Here the term $c \vec{E}$ appears as source term due
+We assume that fluid fulfills the incompressible Navier-Stokes equation.
+The term $c z e \vec{E}$ appears as source term due
 to the acceleration of the fluid caused by the ions. 
-
+In the limit of small Reynolds numbers we can leave out
+the convection term and reduce to the Stokes equation.
+\begin{equation}
+  \eta \Delta \vec{u} = \vec{\nabla} p + c z \vec{E}
+\end{equation}
+The incompressibility (=continuity) equation holds:
+\begin{equation}
+  \vec{\nabla} \cdot \vec{u} = 0
+\end{equation}
 For the electrostatic potential we make the following
 mean field approximation: The electric potential is 
 caused not by single ions, but their density. This means
-every ion is not exposed to the instantaneous potential
+every ion is not exposed to the instantaneous electrostatic potential
 but the smeared out potential of all other ions. Then the Poisson
 equation reads as:
 \begin{equation}
@@ -54,47 +62,62 @@ equation reads as:
   \label{asdf}
 \end{equation}
 We will later
-see that this approximation can be overcome if we move
-from a continuum description to a molecular dynamics simulation
+see that this approximation is avoided in a molecular dynamics simulation
 of explicit ions.
 
 This set of coupled partial differential equations is called
-the electrokinetic equations. 
+the electrokinetic equations. In general the solution is difficult,
+but the planar geometry will allow us to find an analytical 
+solution.
 
 \section{The slit pore geometry}
 We want to investigate the simplest case where EOF occurs:
-The flow water through the volume between two parallel
+The flow of water through the volume between two parallel
 charged planes in the $xy$-plane. We assume that the planes are infinitely
 extended in the directions parallel to the plane and that
 the number of ions exactly cancels the charge of both planes
 and that the external electric field is exerted in $x$ direction
-and that the position of the plates is at $z=\pm l/2$.
-The translational invariance allows to greatly simplify the
-electrokinetic equations:
-\begin{eqnarray}
-  u_z = u_y = 0 \\
-  j_z = 0 \rightarrow +D \nabla c + \mu ze c \partial_z \Phi = 0
-  \partial_z \Phi = -c/\varepsilon \\
-  \partial_z^2 u_x = zeEc
-  \label{EOF}
-\end{eqnarray}
-This set of ordinary differential equations is almost decoupled, 
-and the ion concentration profile $c\left(z\right)$ is independent
-of the fluid velocity. With the Einstein relation $D=\mu kT$ it the
-Poisson equation can be written in the following well known form:
-\begin{equation}
-  \partial_z^2 \Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
-\end{equation}
-which is the one-dimensional Poisson-Boltzmann equation. One can say:
-The density of the ions is proportional to their associated
-Boltzmann factor. The factor $c_0$ appears as integration constant
-and can be chosen to assure charge neutrality.
+and that the position of the planes is at $x=\pm l/2$.
+
+
+Some words where it comes from!!!!!
+%From the geometry of the system 
+%The translational invariance allows to greatly simplify the
+%electrokinetic equations:
+%\begin{eqnarray}
+%  u_z = u_y = 0 \\
+%  j_z = 0 \rightarrow +D \nabla c + \mu ze c \partial_z \Phi = 0
+%  \partial_z \Phi = -c/\varepsilon \\
+%  \partial_z^2 u_x = zeEc
+%  \label{EOF}
+%\end{eqnarray}
+%This set of ordinary differential equations is almost decoupled, 
+%and the ion concentration profile $c\left(z\right)$ is independent
+%of the fluid velocity. With the Einstein relation $D=\mu kT$ the
+%Poisson equation can be written in the following well known form:
+%\begin{equation}
+%  \partial_z^2 \Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
+%\end{equation}
+%which is the one-dimensional Poisson-Boltzmann equation. One can say:
+%The density of the ions is proportional to their associated
+%Boltzmann factor. The factor $c_0$ appears as integration constant
+%and can be chosen to assure charge neutrality.
 
 For planes with charge density $\sigma$ this can be solved by:
-Here the parameter $asdf$ has to fulfill the following transcendental
+\begin{align*}
+		\rho(y)=\frac{\varepsilon\,C^2}{2 k_B T}\cdot\frac 1 {\cos^2\left(\frac{qC}{2k_B T}\cdot y\right)},\quad \left|\frac{qC}{2k_B T}\cdot y\right|<\frac\pi 2\,.
+	\end{align*}
+Here the parameter $C$ has to fulfill the following transcendental
 equation:
+	\begin{align*}
+		C\cdot\tan\left(\frac{qd}{4k_B T}\cdot C\right)=-\frac\sigma\varepsilon,\quad 0\le C<\frac{\pi k_B T}{2d|q|}\,.
+	\end{align*}
 Integrating the charge density twice yield the fluid flow field
 in the direction parallel to the applied field:
+	\begin{align*}
+		v_x(y)&=\frac{2E\varepsilon k_B T}{\eta q}\cdot\left\{\log\left[\cos\left(\frac{qC}{2k_B T}\cdot y\right)\right]-\log\left[\cos\left(\frac{dqC}{4k_B T}\right)\right]\right\},\\
+		P(y)&=P(0)+\frac{\varepsilon C^2}2\cdot\tan^2\left(\frac{qC}{2 k_B T}\cdot y\right)\,.
+	\end{align*}
 Here the integration constants were chosen so that no-slip boundary
 conditions are fulfilled a $z = \pm l/2$.
 
@@ -107,11 +130,12 @@ we combine it all to simulate the full system.
 Poisseuille flow is the flow through a pipe or (in our case) a slit
 under a homogenous force density, e.g. gravity. In the limit of small Reynolds
 numbers, the flow can be described with the Stokes equation. 
-We assume the slit being extended in $y$ and $z$ direction and a force
-density in $y$ direction. No slip-boundary conditions  (i.e. $\vec{u}=0$)
+We assume the slit being infinitely extended in $y$ and $z$ 
+direction and an external electric field $E$
+in $y$ direction. No slip-boundary conditions  (i.e. $\vec{u}=0$)
 are located at $z = \pm l/2$.
 Assuming invariance in $y$ and $z$ direction and a steady state 
-the stokes equation simplifies to:
+the Stokes equation is simplified to:
 \begin{equation}
   \eta \partial_x^2 u_y = f
 \end{equation}
@@ -119,7 +143,7 @@ where $f$ denotes the force density and $\eta$ the dynamic viscosity.
 This can be integrated twice and the integration constants are chosen
 so that $u_y=0$ at $z = \pm l/2$ and we obtain:
 \begin{equation}
-  u_y = u_0 - WTF???
+  u_y = \frac{f}{2\eta} \left(l^2/4-x^2\right)
 \end{equation}
 With that knowledge investigate the script poisseuille.tcl.
 Note the \lstinline{lb_boundary} command. Two walls are created
@@ -138,29 +162,29 @@ puts $ofile "hello world!"
 close $ofile
 \end{lstlisting}
 \vspace{ 0,2cm}
-
 Use gnuplot to fit a parabolic profile. Can you confirm the analytic solution?
 
 \section{Constraints in \ES{}}
 The \lstinline|constraint| command of \ES{} creates walls in the system.
 They have a particular ``particle'' type and interact with the particles
-present in the system with the defined potential. This means the distance
+present in the system with the potential defined 
+between them. This means the distance
 of every particle to the constraint is calculated and used as the distance 
 in the interaction potential.
 
-To set up a planar channel just as before one would use the commands:
+To set up a planar channel like the LB channel before one would use the commands:
 \begin{lstlisting}[numbers=none]
-constraint wall 0.5 normal 1. 0. 0. type 1
-constraint wall -8.5 normal -1. 0. 0. type 1
+constraint wall dist 0.5 normal 1. 0. 0. type 1
+constraint wall dist -8.5 normal -1. 0. 0. type 1
 inter 0 1 lennard-jones 1. 1. 1.225 0.25 0
 \end{lstlisting}
 This wall is felt only by particles of type 0 and has an effective width
-of 6, as the potential goes steeply up at positions 1.5 and 7.5.
+of 6, as the potential goes steeply up at positions $x=1.5$ and $x=7.5$.
 
 The syntax of the wall constraint looks weird at first, because a negative
 distance from the origin (first argument) is given, but the idea is that
 this distance times the normal vector is a point of the plane. For inclined
-walls this syntax is more easy to understand.)
+walls this syntax is more easy to understand.
 
 \ES{} complains every time a particle penetrates the wall, as it does not
 expect the particles to do so. This should normally cause no problem. 
@@ -182,30 +206,59 @@ part 0 pos 1. 1. 1. q 1. fix 1 1 1
 create a particle at the position $\left(1,1,1\right)$ with
 charge 1 that is fixed in all the spacial dimensions.
 
-In \lstinline|eof.tcl| two walls are created. Now use what was
-used before to run the final system. Use the particle
+In \lstinline|eof.tcl| two walls are created. Now use the material
+from the other two scripts to run the final system.
+Our we want to obtain a 10 Nanometer wide channel centered
+$x=7.5$
+\begin{enumerate}
+  \item Create constraints at $x=1.5$ and $x=13.5$ and create 
+    a particle-wall interaction. How can you assure that the 
+    particles creating the wall charges are not affected by 
+    interaction potential.
+  \item
+Use the particle
 creation method from \lstinline|boundaries.tcl| to
-create particles and walls in the system. Place the particle
-walls at 2.5 and 14.5. Charge the particles so that
-the overall system is neutral, but remove the external force. 
-Use a Langevin thermostat
-to equilibrate the system. What happens during the equilibration?
-The equilibration should be done in 10000 MD steps.
+create particles in the system. Create a repulsive potential between them.
+  \item
+Charge the particles so that
+the overall system is neutral. 
+  \item Add an electrostatic interaction with a Bjerrum length 
+    of 0.7 (the room temperature Bjerrum length of water in nanometer).
+  \item First do not exert an external force on the particles.
+       Use a Langevin thermostat to bring the system to equilibrium.
+       It will take some time for the ions to move towards the charged
+       walls. You can use vmd to look see the process.
+  \item
+       Use the density profile method from \lstinline|boundaries.tcl|
+       to determine the ion concentration profile. How many samples
+       do you need to get a reasonable concentration profile.
+   \item
+     Plot the concentration profile with gnuplot. Compare with the
+     the Poisson-Boltzmann result. 
+   \item 
+     Introduce an LB fluid with planar walls boundaries at 2.5 and 12.5. 
+     Do not forget to remove the
+     external force if you copy\&paste from \lstinline|poisseuille.tcl|.
+   \item 
+     Add an external force of 0.1 to all particles that do not form the
+     charged wall in $y$-direction. Now run the system for enough time
+     steps to get a good flux and velocity profile.
+   \item 
+     Finally calculate the velocity profile. You will have to 
+     average over several steps. Keep in mind that number crunching
+     with tcl is slow and that you will not need to average over too 
+     many samples.
+   \item 
+     Compare the flux and velocity profiles with the result from
+     theory. Do they agree?
+   \item
+     Now increase the charge density on the walls. Can you observe differences
+     between theory and Computer simulations? They will likely be caused
+     by the fact, that MD simulations of explicit ions automatically
+     take into account ion correlations and the effect of the finite size
+     of ions.
+\end{enumerate}
 
-Use the density profile method from \lstinline|boundaries.tcl| 
-to measure the density. Use a production run of 10000 MD steps
-and update the density profile every 100 MD steps.
-
-Investigate it with gnuplot. How does it compare to the 
-PB prediction?
-
-After this add the LB fluid from \lstinline|poisseuille.tcl|.
-Add it before the production cycles, but after the equilbration.
-Now add the external force again to the particles. An run the 
-simulation again. Does the ion density profile change? Would
-you expect it to change? Finally implement a method that averages
-the fluid density profile. Use gnuplot to investigate
-the flow profile. Is it compatible with the theory?
 
 
 

@@ -36,7 +36,7 @@ parameter is given in the form \lstinline|lbfluid name value|.
 All parameters except for \lstinline|gamma_odd| and  \lstinline|gamma_even|
 are given in MD units. All parameters except for \lstinline|ext_force| accept
 one scalar floating point argument. \\
-
+\vspace{0,2cm}
 \begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
 \lstinline|dens| & The density of the fluid.\\
 \lstinline|grid| & The lattice constant of the fluid. It is used to determine the number of LB nodes 
@@ -48,6 +48,7 @@ per direction from \lstinline|box_l|. {\em They have to be compatible.} \\
 \lstinline|gamma_odd| & Relaxation parameter for the odd kinetic modes. \\
 \lstinline|gamma_even| & Relaxation parameter for the even kinetic modes.
 \end{tabular} \\
+\vspace{0,2cm}
 
 A good starting point for an MD time step of 0.01 is the command line
 \vspace{0,2cm}
@@ -72,13 +73,16 @@ general syntax is:
 lbnode X Y Z command arguments
 \end{lstlisting}
 \vspace{0,2cm}
-Note that the indexing in every direction starts with 0. The possible commands are:\\
+Note that the indexing in every direction starts with 0. The possible commands are:
+\vspace{0,8cm}
 \begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
   print & Print one or several quantities to the TCL interface.\\
   set & Set one quantity to a particular value (can be a vector)\\
 \end{tabular}\\
+\vspace{0,8cm}
 For both commands you have to specify what quantity should be printed
-or modified. Print allows for the following arguments: \\
+or modified. Print allows the following arguments: \\
+\vspace{0,8cm}
 \begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
   \lstinline|rho|\ & the density (scalar). \\
   \lstinline|u| & the fluid velocity (three floats: $u_x$, $u_y$, $u_z$) \\
@@ -86,11 +90,14 @@ or modified. Print allows for the following arguments: \\
   \lstinline|pi_neq| & the nonequilbrium part of the pressure tensor, components as above. \\
   \lstinline|pop| & the 19 population (check the order from the source code please).
 \end{tabular} \\
+\vspace{0,8cm}
 Example:
 The line
+\vspace{0,2cm}
 \begin{lstlisting}[ numbers=none]
 puts [ lbnode 0 0 0 print u ]
 \end{lstlisting}
+\vspace{0,2cm}
 prints the fluid velocity in node 0 0 0 to the screen.
 The command \lstinline|set| allows to change the density or fluid velocity in a single node. Setting
 the other quantities can easily be implemented.
@@ -130,5 +137,5 @@ lb_boundary wall -8.1 0 0 normal -1. 0. 0.
 \end{lstlisting}
 This has to be kept in mind, when you use the LB boundaries.
 
-Currently only the shapes wall, sphere and cylinder are implemented, but to implement the others 
-is straightforward.
+Currently only the shapes wall, sphere and cylinder are implemented, but to implement others 
+is straightforward. If you need them, please let us know.

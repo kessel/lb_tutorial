@@ -4,11 +4,11 @@ In these exercises we want to use the LBM-MD-Hybrid to reproduce a classic
 result of polymer physics: The dependence of the diffusion coefficient
 of a polymer on its chain length. If no hydrodynamic interactions
 are present, one expects a scaling law $D \propto N^{-1}$ and if 
-they are present, a scaling law $D \propto N^{\nu}$ is expected. 
+they are present, a scaling law $D \propto N^{-\nu}$ is expected. 
 Here $\nu$ is the Flory exponent that plays a very prominent role
-in polymer physics, which has a value of $\sim 3/5$ in good solvent
-conditions. Discussions of these scaling laws can be found
-in polymer physics textbooks like \cite{degennes, doi, rubinstein}.
+in polymer physics. It has a value of $\sim 3/5$ in good solvent
+conditions in 3D. Discussions of these scaling laws can be found
+in polymer physics textbooks like \cite{degennes79a, doi96a, rubinstein03a}.
 
 
 We want to determine the diffusion coefficient from the mean square
@@ -21,7 +21,7 @@ prefactor:
 \end{equation}
 Here $d$ denotes the dimensionality of the system, in our case 3.
 This equation can be found in virtually any simulation textbook, like
-\cite{frenkel}
+\cite{frenkel02b}.
 We will therefore set up a polymer in an LB fluid, simulate for an appropriate
 amount of time, calculate the mean square displacement as a function of
 time and obtain the diffusion coefficient from a linear fit. However
@@ -30,17 +30,23 @@ subproblems that allow to (hopefully) fully understand the process.
 
 \section{Step 1: Diffusion of a single particle}
 Our first step is to investigate the diffusion of a single particle
-that is coupled to an LB fluid with the point coupling method.
+that is coupled to an LB fluid by the point coupling method.
 Investigate the script  \lstinline|single_particle_diffusion.tcl|.
 
 In this script an LB fluid and a single particle are created and LB is
 used to thermostat the system. The random forces on the particle and
 within the LB fluid will cause the particle to move, and its position
-is recorded in the file \lstinline|pos.dat|. Run the simulation script
-for 10000 steps and use the helper script \lstinline|msd.pl| with the
-argument \lstinline|pos.dat| to calculate the MSD. Use
-\lstinline|gnuplot| to investigate the curve:
+is recorded in the file  \lstinline|pos.dat|. 
+Run the simulation script for 10000 steps
+and use the helper script  \lstinline|msd.pl| to calculate the MSD: 
+{\vspace{0,2cm}\small
+\begin{lstlisting}[numbers=none]
+./msd.pl pos.dat
+\end{lstlisting}\vspace{0,2cm}
+}
 
+Use  \lstinline|gnuplot|
+to investigate the curve:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
 plot "pos.dat"
@@ -48,36 +54,44 @@ plot "msd_pos.dat"
 \end{lstlisting}\vspace{0,2cm}
 }
 
-Where is the crossover between ballistic motion and brownian motion?
+What is different for short times than for long times?
+Can you give an explanation for the parabolic shape at short
+times?
 Use a linear fit to determine the diffusion coefficient:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
 f(x)=a*x+b
-fit [0.35:] f(x) "msd_pos.dat" via a,b
+fit [1:] msd_pos.dat via a,b
 \end{lstlisting}\vspace{0,2cm}
 }
+The square brackets in the fit command tell \lstinline{gnuplot}
+only to use the range right of $x=1$ for the fit.
+
+The file \lstinline|energy.dat| contains the kinetic energy of the
+particle as a function of the elapsed simulation time. Investigate
+it, by plotting it with gnuplot. Calculate the average value of 
+the kinetic energy e.g. by fitting a constant function with gnuplot.
+What value would you expect from a working thermostat?
 
 Now change the box size from 16 to 8, 24, 32. What can you observe?
 Can you explain your observation?
 What happens if you replace the lb thermostat (and the LB fluid)
 by a Langevin thermostat?
 
-The file \lstinline|energy.dat| contains the kinetic energy of the
-particle as a function of the elapsed simulation time. Investigate
-it, by plotting it with gnuplot. 
-
-\section{Step 2: Understanding the method better}
 Run the simulation again with different values for the friction
-coefficient $\gamma$, e.g. 1. 5. 20. 50. Calculate the diffusion
-coefficient for all cases and use gnuplot to make a plot of $D$ as a
-function of $\gamma$. What do you observe?  The tiny helper script
-\lstinline|fit_lin.sh| (with argument \lstinline|pos.dat|) will help
-you with that. It contains a (quite ugly) gnuplot one-liner that does
-the fitting and just returns the slope. Now keep the friction
-coefficient fixed and change the viscosity of the fluid. Make a plot
-of the diffusion coefficient as a function of the friction parameter.
+coefficient, e.g. 1. 5. 20. 50. Calculate the diffusion
+coefficient for all cases and use gnuplot to make a plot of
+$D$ as a function of $\gamma$. What do you observe?
+The tiny helper script \lstinline|fit_lin.sh| 
+(with argument \lstinline|msd_pos.dat|)
+will help you with that. It contains
+a (quite ugly) gnuplot one-liner that does the fitting and just
+returns the slope. Is there any difference between the
+friction coefficient that you put in, and the diffusion coefficient
+you obain?
 
 \section{Step 3: The long time tail of the velocity autocorrelation function}
+Should we do anything here?
 
 \section{Step 4: Setting up a polymer}
 One of the typical application of \ES{} is the simulation of polymer chains 
@@ -101,35 +115,47 @@ repulsive interaction. The command
 inter 0 FENE 7. 2. 
 \end{lstlisting}\vspace{0,2cm}
 }
-creates a FENE (see \ES{} for the details) bond interaction. Still \ES{}
+creates a FENE (see \ES{} manual for the details) bond interaction. Still \ES{}
 does not know between which beads this interaction should be applied.
 This can be either be specified explicitly or done with the \lstinline|polymer|
 command. This creates a given number of beads, links them with the given
 bonded interaction and places them following a certain algorithm. We will
-use the random walk: The monomers are set according to a random walk (in 3D)
-with the given distance between adjacent bead positions. The syntax is:
+use the pruned self-avoiding walk: The monomers are set according 
+to a pruned self-avoiding walk (in 3D) with a
+fixed distance between adjacent bead positions. The syntax is:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
-  polymer $N_polymers $N_monomers 1.0 types 0 mode RW bond 0 constraints 
+  polymer $N_polymers $N_monomers 1.0 types 0 mode PSAW bond 0 constraints 
 \end{lstlisting}\vspace{0,2cm}
 }
 Using a random walk to create a polymer causes trouble: The random walk may 
 cross itself (or closely approach itself) and the LJ potential is very
 steep. This would raise the potential energy enormously and would make
-the monomers shoot through the simulation box. 
-However, we can perform some MD steps with a capped LJ potential, this means 
+the monomers shoot through the simulation box. The pruned self-avoiding
+walk should prevent that, but to be sure
+we perform some MD steps with a capped LJ potential, this means 
 forces above a certain threshold will be set to the threshold in order to prevent
 the system from exploding. To see how this is done, look at the script 
 \lstinline|polymer_diffusion.tcl|.
+It contains a quite long warmup command so that also longer polymers
+are possible. You can probably make it shorter. Also the runtime
+can be reduced. You should find out about necessary number of steps
+by yourself.
 
 Run the script with a polymer of chain length 16 and look at the output files
-which are identical to the output files of the \lstinline|single_particle_diffusion.tcl|
+which are identical to the output files of the 
+\lstinline|single_particle_diffusion.tcl|
 script. Here a Langevin thermostat is used to keep the temperature constant.
 Use \lstinline|msd.pl| and \lstinline|fit_lin.sh| to calculate the diffusion
-coefficient as a function of the chain length.
-
+coefficient as a function of the chain length. If you are familiar with
+shell scripting, write a script that automatically changes the chain length.
 
 With the help of the single particle script now add the LB fluid and calculate
-the MSD again. What do you observe?
-
+the MSD again. What do you observe? Do not forget to remove the Langevin 
+thermostat after the warmup. This can be done with the command
+{\vspace{0,2cm}\small
+\begin{lstlisting}[numbers=none]
+thermostat off
+\end{lstlisting}\vspace{0,2cm}
+} 
 Try to find out, why the results do not show the $N^{3/5}$ behaviour.
