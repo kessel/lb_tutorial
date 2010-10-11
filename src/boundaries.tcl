@@ -26,7 +26,6 @@ for { set i 0 } { $i < 50 } { incr i } {
   ## the flag ok indicates if the position
   ## of the particle is fine. While it is not
   ## fine, new positions well be crated randomly
-  puts $i
   set ok 0
   while { !$ok } {
     set x [ expr 16 * [ t_random ] ]
@@ -73,8 +72,8 @@ for { set i 0 } { $i < $nbins } { incr i } {
 
 puts "Running."
 ## production loop
-for { set i 0 } { $i < 100 } { incr i } {
-  integrate 500
+for { set i 0 } { $i < 200 } { incr i } {
+  integrate 50
   incr samples
   ## update the histograms
   for { set j 0 } { $j < 50 } { incr j } {
@@ -83,22 +82,25 @@ for { set i 0 } { $i < 100 } { incr i } {
     ## determine the corresponding bin
     set bin [ expr int(floor($x/$box_l*$nbins)) ]
     ## fill data
-    lset density_profile $bin [ expr [ lindex $density_profile $bin ] + 1 ]
+    lset density_profile $bin [ expr [ lindex $density_profile $bin ] + 1. ]
     lset flux_profile $bin [ expr [ lindex $flux_profile $bin ] + [ lindex [ part $j print v ] 1 ] ]
   }
 }
 puts "Done."
 
+## Write the profiles to files. 
+## All number have to be divided by the volume
+## of each bin and the number of samples
 set den_file [ open "density.dat" "w" ] 
 set flux_file [ open "flux.dat" "w" ] 
 set vel_file [ open "vel.dat" "w" ] 
 for { set i 0 } { $i < $nbins } { incr i } {
-  puts $den_file  "[ expr ($i+0.5)*$box_l/$nbins ] [ expr [ lindex $density_profile $i ] / $samples ]"
-  puts $flux_file "[ expr ($i+0.5)*$box_l/$nbins ] [ expr [ lindex $flux_profile $i ]    / $samples ]"
+  puts $den_file  "[ expr ($i+0.5)*$box_l/$nbins ] [ expr [ lindex $density_profile $i ]/$box_l/$box_l/($box_l/$nbins) / $samples ]"
+  puts $flux_file "[ expr ($i+0.5)*$box_l/$nbins ] [ expr [ lindex $flux_profile $i ]/$box_l/$box_l/($box_l/$nbins)    / $samples ]"
   if { [ lindex $density_profile $i ] > 0 } { 
     puts $vel_file  "[ expr ($i+0.5)*$box_l/$nbins ] [ expr [ lindex $flux_profile $i ] /  [ lindex $density_profile $i ] ]"
   } else {
-    puts $vel_file 0.
+    puts $vel_file "[ expr ($i+0.5)*$box_l/$nbins ] 0."
   }
 }
 close $den_file

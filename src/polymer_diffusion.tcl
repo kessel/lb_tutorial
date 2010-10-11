@@ -9,6 +9,7 @@ if { $argc != 2 } {
   puts "output: pos.dat v.dat"
   puts "The files contain the time elapsed in the simulation and the center"
   puts "of mass position and velocity"
+  exit
 }
 set nummon [ lindex $argv 1 ]
 
@@ -34,6 +35,8 @@ if { $vmd=="yes" } {
 } 
   
 puts "Warming up the polymer chain."
+## For longer chains (>100) an extensive 
+## warmup is neccessary ...
 setmd time_step 0.002
 thermostat langevin 1. 10.
 for { set i 0 } { $i < 100 } { incr i } {

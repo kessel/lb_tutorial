@@ -12,7 +12,7 @@ if { $argc != 1 } {
 }
 
 ## set up the box
-setmd box_l [ lindex $argv 1 ] [ lindex $argv 1 ] [ lindex $argv 1 ]
+setmd box_l 16. 16. 16.
 ## the skin is not important for a single particles
 setmd skin 0.2
 ## the MD step in this simulation could be bigger, but
