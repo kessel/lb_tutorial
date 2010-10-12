@@ -53,17 +53,17 @@ per direction from \lstinline|box_l|. {\em They have to be compatible.} \\
 A good starting point for an MD time step of 0.01 is the command line
 \vspace{0,2cm}
 \begin{lstlisting}[ numbers=none]
-lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd 0. gamma_even 0.
+lbfluid grid 1.0 dens 10. visc .1 tau 0.1 friction 20. gamma_odd 0. gamma_even 0.
 \end{lstlisting}
 \vspace{0,2cm}
 
-In combination with walls, it could also be useful to set \lstinline|gamma_odd| and
-\lstinline|gamma_even| to -0.7. E.g. 
-\vspace{0,2cm}
-\begin{lstlisting}[ numbers=none]
-lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd -0.7 gamma_even -0.7 ext_force 0.01 0. 0.
-\end{lstlisting}
-\vspace{0,2cm}
+%In combination with walls, it could also be useful to set \lstinline|gamma_odd| and
+%\lstinline|gamma_even| to -0.7. E.g. 
+%\vspace{0,2cm}
+%\begin{lstlisting}[ numbers=none]
+%lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd -0.7 gamma_even -0.7 ext_force 0.01 0. 0.
+%\end{lstlisting}
+%\vspace{0,2cm}
 
 \subsection*{The \lstinline|lbnode| command}
 The \lstinline|lbnode| command allows to inspect and modify single LB nodes The

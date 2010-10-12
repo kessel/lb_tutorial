@@ -44,6 +44,17 @@ In the collision step, the distribution functions
 in each cell are relaxed towards the local thermodynamic
 equilibrium. This will be described in more detail below.
 
+\begin{figure}[htp]
+\begin{center}
+  \includegraphics[height=0.3\textheight]{../figs/latticeboltzmann-grid}
+  \caption[]{The 19 velocity vectors $\vec{c}_{i}$ for a D$3$Q$19$ lattice. From
+  the central grid point, the velocity vectors point towards all 18
+  nearest neighbours marked by filled circles. The 19th velocity vector is the
+  rest mode (zero velocity).}
+  \label{fig:model-d3q18grid}
+\end{center}
+\end{figure}
+
 The important hydrodynamic properties, the density, 
 the fluid momentum density,
 the pressure tensor can be calculated quite straightforward from
@@ -132,9 +143,22 @@ that is proportional to the velocity difference between particle
 and fluid:
 \begin{equation}
   \vec{F} = - \gamma \left(v-u\right) 
+  \label{eq:model-lbcoupling}
 \end{equation}
 The opposite force is distributed on the surrounding LB nodes. Additionally
 a random force is added to maintain a constant temperature, again according
-to the fluctuation dissipation theorem.
-
+to the fluctuation dissipation theorem. 
+\begin{figure}[htp]
+\begin{center}
+   \includegraphics[height=0.3\textheight]{../figs/latticeboltzmann-momentumexchange}
+   \caption{The coupling scheme between fluid and particles is based on the
+   interpolation of the fluid velocity $\vec{u}$ from the grid nodes marking
+   the cell the particle is in to the actual position $\vec{r}$ of the
+   particle. This is done by linear interpolation. The difference between the
+   actual particle velocity $\vec{v}(t)$ and the interpolated velocity
+   $\vec{u}(\vec{r},t)$ is used in the momentum exchange of
+   Equation~\ref{eq:model-lbcoupling}.}
+  \label{fig:model-lbcoupling}
+\end{center}
+\end{figure}
 
