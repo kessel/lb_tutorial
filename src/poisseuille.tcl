@@ -13,7 +13,7 @@ setmd box_l 16. 16. 16.
 
 ## Set up the LB fluid
 #lbfluid agrid 1. dens 10. visc 1. tau 0.1 gamma_odd -0.7 gamma_even -0.7 ext_force 0. 0.1 0.
-lbfluid agrid 1. dens 10. visc 1. tau 0.1 ext_force 0. 0.1 0.
+lbfluid agrid 1. dens 10. visc .1 tau 0.1 ext_force 0. 0.001 0.
 ## set the temperature to a nonzero value to activate fluctuations
 thermostat lb 0.
 
