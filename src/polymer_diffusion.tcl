@@ -50,13 +50,7 @@ integrate 10000
 setmd time_step 0.01
 integrate 50000
 
-thermostat off
-lbfluid grid 1. dens 1. visc 5. tau 0.1 friction 5.
-thermostat lb 1.
-
-puts "Warming up the system with LB fluid."
-integrate 1000
-puts "Done."
+#introduce the LB fluid here!
 
 for { set i 0 } { $i < 1000 } { incr i } {
   imd positions

@@ -28,7 +28,7 @@ set enfile [ open "energy.dat"  "w"]
 
 ## this creates the LB fluid with the parameters
 ## of our choice.
-lbfluid grid 1. dens 1. visc 1. tau 0.1 friction 50.
+lbfluid grid 1. dens 1. visc .1 tau 0.1 friction 50.
 ## this activates the thermalization of the
 ## LB fluid and adds the random forces on the 
 ## particle
