@@ -9,7 +9,7 @@ open (IN, "$ARGV[0]");
 @in = <IN>;
 close (IN);
 
-open (OUT, ">autokor_$ARGV[0]");
+open (OUT, ">", "acf_$ARGV[0]");
 
 $lines = $#in;
 print "lines: $lines\n";
@@ -17,7 +17,7 @@ print "lines: $lines\n";
 @temp2 = split (/\s+/, $in[1]);
 $columns=$#temp1+1;
 print "$columns\n";
-$min_samples = 100;
+$min_samples = 10;
 print "min_intervalls: $min_intervalls\n";
 $max_size = int(($lines)/$min_samples);
 print "max_size: $max_size\n";
@@ -29,6 +29,7 @@ for($tau=0;$tau<=$max_size;$tau++){
   print "$tau\n";
 	@sum=((0.) x ($columns-1));
 	@av=((0.) x ($columns-1));
+  print "@sum";
 	$counter=0;
 	for($t=0;$t<=$t_max;$t+=($tau>0?$tau:1)){
 		@former = split (/\s+/, $in[$t]);
@@ -38,10 +39,11 @@ for($tau=0;$tau<=$max_size;$tau++){
     }
     $counter++;
 	}
-  for ($i=1; $i <= $columns; $i++) { 
+  for ($i=1; $i < $columns; $i++) { 
   	$av[$i-1]+=$sum[$i-1]/$counter;
   }
   $tau2=$tau*$delta_t;
+	print "$tau2 @av\n";
 	print OUT "$tau2 @av\n";
 }
 

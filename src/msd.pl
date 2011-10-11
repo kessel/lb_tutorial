@@ -11,7 +11,7 @@ open (OUT, ">msd_$ARGV[0]");
 
 $lines = $#in;
 print "lines: $lines\n";
-$min_intervalls = 100;
+$min_intervalls = 2;
 print "min_intervalls: $min_intervalls\n";
 $max_size = int(($lines+1)/$min_intervalls);
 print "max_size: $max_size\n";
