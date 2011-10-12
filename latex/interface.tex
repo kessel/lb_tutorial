@@ -5,10 +5,10 @@ In \ES{} the LB scheme and the MD scheme are not synchronized: In one
 LB time step typically several MD steps are performed. This allows to speed
 up the simulations and is adjusted with the parameter \lstinline|tau|.
 \ES{} has three main commands for the LB module: 
- \lstinline|lbfluid|,  \lstinline|lbnode|, and  \lstinline|lb_boundary|.
+ \lstinline|lbfluid|,  \lstinline|lbnode|, and  \lstinline|lbboundary|.
  \lstinline|lbfluid| is mainly used to set up parameters and does everything that
 concerns the whole fluid.  \lstinline|lbnode| involves readout and manipulation of
-single LB cells.  \lstinline|lb_boundary| allows to set boundaries, currently only
+single LB cells.  \lstinline|lbboundary| allows to set boundaries, currently only
 the bounce back boundary method is implemented to model
 no-slip walls. Additionally the command  \lstinline|thermostat| \lstinline|lb| is used to set
 the temperature. 
@@ -42,7 +42,7 @@ one scalar floating point argument. \\
 \lstinline|grid| & The lattice constant of the fluid. It is used to determine the number of LB nodes 
 per direction from \lstinline|box_l|. {\em They have to be compatible.} \\
 \lstinline|visc| & The kinematic viscosity \\
-\lstinline|tau| & The time step of LB. It has to be larger than the MD time step. \\
+\lstinline|tau| & The time step of LB. It has to be equal or larger than the MD time step. \\
 \lstinline|friction| & The friction coefficient $\gamma$ for the coupling scheme. \\
 \lstinline|ext_force| & An external force applied to every node with three components. \\
 \lstinline|gamma_odd| & Relaxation parameter for the odd kinetic modes. \\
@@ -53,17 +53,9 @@ per direction from \lstinline|box_l|. {\em They have to be compatible.} \\
 A good starting point for an MD time step of 0.01 is the command line
 \vspace{0,2cm}
 \begin{lstlisting}[ numbers=none]
-lbfluid grid 1.0 dens 10. visc .1 tau 0.1 friction 20. gamma_odd 0. gamma_even 0.
+lbfluid grid 1.0 dens 10. visc .1 tau 0.01 friction 10.
 \end{lstlisting}
 \vspace{0,2cm}
-
-%In combination with walls, it could also be useful to set \lstinline|gamma_odd| and
-%\lstinline|gamma_even| to -0.7. E.g. 
-%\vspace{0,2cm}
-%\begin{lstlisting}[ numbers=none]
-%lbfluid grid 1.0 dens 10. visc 1. tau 0.1 friction 20. gamma_odd -0.7 gamma_even -0.7 ext_force 0.01 0. 0.
-%\end{lstlisting}
-%\vspace{0,2cm}
 
 \subsection*{The \lstinline|lbnode| command}
 The \lstinline|lbnode| command allows to inspect and modify single LB nodes The
@@ -82,6 +74,8 @@ Note that the indexing in every direction starts with 0. The possible commands a
 \vspace{0,8cm}
 For both commands you have to specify what quantity should be printed
 or modified. Print allows the following arguments: \\
+
+
 \vspace{0,8cm}
 \begin{tabular}{p{0.2\columnwidth}p{0.5\columnwidth}}
   \lstinline|rho|\ & the density (scalar). \\
@@ -105,8 +99,8 @@ Example:
 \begin{lstlisting}[ numbers=none]
 puts [ lbnode 0 0 0 set u 0.01 0. 0.]
 \end{lstlisting}
-\subsection*{The \lstinline|lb_boundary| command}
-The \lstinline|lb_boundary| allows to set boundary conditions for the LB fluid. In general
+\subsection*{The \lstinline|lbboundary| command}
+The \lstinline|lbboundary| allows to set boundary conditions for the LB fluid. In general
 periodic boundary conditions are applied in all directions, and only if LB boundaries
 are constructed finite geometries are used. This part of the LB implementation is still experimental,
 so please tell us about your experience with it. In general even the simple case of no-slip
@@ -115,25 +109,25 @@ point particle coupling not much experience exists. This means: Do research on t
 around with parameters and find out what happens. 
 
 
-The \lstinline|lb_boundary| command is supposed to resemble exactly the constraint command of 
-\ES{}: Just replace the keyword \lstinline|constraint| with the word \lstinline|lb_boundary| 
+The \lstinline|lbboundary| command is supposed to resemble exactly the constraint command of 
+\ES{}: Just replace the keyword \lstinline|constraint| with the word \lstinline|lbboundary| 
 and \ES{} will create walls with the same shape as the corresponding constraint. Example:
 The commands
 \begin{lstlisting}[ numbers=none]
-lb_boundary wall 0.5 0 0 normal 1. 0. 0. 
-lb_boundary wall -8.5 0 0 normal -1. 0. 0. 
+lbboundary wall 0.5 0 0 normal 1. 0. 0. 
+lbboundary wall -8.5 0 0 normal -1. 0. 0. 
 \end{lstlisting}
 create a channel with walls parallel to the $yz$ plane with width 8.
 
 Currently only the so called \emph{link bounce back} method is implemented, where the effective
 hydrodynamic boundary is located midway between two nodes. This is the simplest and yet a 
-rather effective approach for boundary implementation. The \lstinline|lb_boundary| command
+rather effective approach for boundary implementation. The \lstinline|lbboundary| command
 checks for every LB node if it is inside the constraint or outside and flags it as a boundary
 node or not. This means if the lattice constant is set to 1, the above command yields exactly
 the same as this:
 \begin{lstlisting}[ numbers=none]
-lb_boundary wall 0.1 0 0 normal 1. 0. 0. 
-lb_boundary wall -8.1 0 0 normal -1. 0. 0. 
+lbboundary wall 0.1 0 0 normal 1. 0. 0. 
+lbboundary wall -8.1 0 0 normal -1. 0. 0. 
 \end{lstlisting}
 This has to be kept in mind, when you use the LB boundaries.
 

@@ -30,9 +30,10 @@ to multiple species however is straightforward.
 We want to describe a system in which ions can diffuse under an
 applied field embedded in a fluid. We therefore assume that a 
 linear convection diffusion equation is valid:
-\begin{equation}
-  \vec{j}=-D \nabla c + \mu ze c \vec{E} + c \vec{u}
-\end{equation}
+\begin{align*}
+		\vec j &=-D\nabla\rho-\rho\left(\mu z e \nabla\Phi+\vec u\right),
+\end{align*}
+
 Here $\vec{j}$ corresponds to the ion flux density, $D$ corresponds 
 to the diffusion coefficient of the ions,
 $c$ to their concentration, $\mu$ to their (electrophoretic)
@@ -40,13 +41,15 @@ mobility, $\vec{E}$ to the local electric field and $\vec{u}$
 to the fluid velocity.
 
 We assume that fluid fulfills the incompressible Navier-Stokes equation.
-The term $c z e \vec{E}$ appears as source term due
+The term $\rho z e \vec{E}$ appears as source term due
 to the acceleration of the fluid caused by the ions. 
 In the limit of small Reynolds numbers we can leave out
 the convection term and reduce to the Stokes equation.
 \begin{equation}
-  \eta \Delta \vec{u} = \vec{\nabla} p + c z \vec{E}
+  \eta \Delta \vec{u} = \vec{\nabla} p - \rho z e \vec{E}
 \end{equation}
+Here we have assumed that the system reaches a steady
+state and therefore the time derivative was dropped.
 The incompressibility (=continuity) equation holds:
 \begin{equation}
   \vec{\nabla} \cdot \vec{u} = 0
@@ -58,7 +61,7 @@ every ion is not exposed to the instantaneous electrostatic potential
 but the smeared out potential of all other ions. Then the Poisson
 equation reads as:
 \begin{equation}
-  \Delta \Phi = -c/\varepsilon
+  \Delta \Phi = -\rho z e/\varepsilon
   \label{asdf}
 \end{equation}
 We will later
@@ -79,31 +82,32 @@ the number of ions exactly cancels the charge of both planes
 and that the external electric field is exerted in $x$ direction
 and that the position of the planes is at $x=\pm l/2$.
 
+We assume that all quantities to not change in $y$ and $z$ directions
+because of translational invariance (the great advantage of our geometry)
+and drop all derivatives with respect to it. The only exception
+is the electrostatic potential which we assume to decay linearly in
+$y$-direction due to an external field. 
 
-Some words where it comes from!!!!!
-%From the geometry of the system 
-%The translational invariance allows to greatly simplify the
-%electrokinetic equations:
-%\begin{eqnarray}
-%  u_z = u_y = 0 \\
-%  j_z = 0 \rightarrow +D \nabla c + \mu ze c \partial_z \Phi = 0
-%  \partial_z \Phi = -c/\varepsilon \\
-%  \partial_z^2 u_x = zeEc
-%  \label{EOF}
-%\end{eqnarray}
-%This set of ordinary differential equations is almost decoupled, 
-%and the ion concentration profile $c\left(z\right)$ is independent
-%of the fluid velocity. With the Einstein relation $D=\mu kT$ the
-%Poisson equation can be written in the following well known form:
-%\begin{equation}
-%  \partial_z^2 \Phi = c_0 \exp{\frac{-ze\Phi}{kT}}
-%\end{equation}
-%which is the one-dimensional Poisson-Boltzmann equation. One can say:
-%The density of the ions is proportional to their associated
-%Boltzmann factor. The factor $c_0$ appears as integration constant
-%and can be chosen to assure charge neutrality.
 
-For planes with charge density $\sigma$ this can be solved by:
+Due to continuity in $x$-direction and translational invariance resp.
+symmetry the fluid velocity and flux density in x direction must be zero and we can 
+write down the Poisson equation and the diffusion equation in 
+$x$ direction:
+\begin{align}
+  \partial^2_x \Phi &= -\rho z e/\varepsilon \\
+	0 &=-D\partial_x\rho-\rho\mu z e \partial_x\Phi
+\end{align}
+This significantly smaller set of equations corresponds
+to the 1D Poisson-Boltzmann equation. It can be solved
+using the Ansatz:
+\begin{equation}
+  \rho = c \exp\left(-\frac{z e \Phi}{k_B T}\right)
+\end{equation}
+Then one obtains a single ordinary differential
+equation that has to be solved under the boundary 
+condition that the walls bear a charge density $\sigma$,
+thus electric field jumps at $x=\pm l/2$. This
+yields:
 \begin{align*}
 		\rho(y)=\frac{\varepsilon\,C^2}{2 k_B T}\cdot\frac 1 {\cos^2\left(\frac{qC}{2k_B T}\cdot y\right)},\quad \left|\frac{qC}{2k_B T}\cdot y\right|<\frac\pi 2\,.
 	\end{align*}
@@ -112,14 +116,17 @@ equation:
 	\begin{align*}
 		C\cdot\tan\left(\frac{qd}{4k_B T}\cdot C\right)=-\frac\sigma\varepsilon,\quad 0\le C<\frac{\pi k_B T}{2d|q|}\,.
 	\end{align*}
-Integrating the charge density twice yield the fluid flow field
-in the direction parallel to the applied field:
+Now this charge density can be included in the Stokes equation
+and one can obtain the fluid profile from integrating twice
+and choosing the integration constanst so that $\vec u=0$ is fulfilled
+at $x=\pm l/2$:
 	\begin{align*}
-		v_x(y)&=\frac{2E\varepsilon k_B T}{\eta q}\cdot\left\{\log\left[\cos\left(\frac{qC}{2k_B T}\cdot y\right)\right]-\log\left[\cos\left(\frac{dqC}{4k_B T}\right)\right]\right\},\\
-		P(y)&=P(0)+\frac{\varepsilon C^2}2\cdot\tan^2\left(\frac{qC}{2 k_B T}\cdot y\right)\,.
+		u_y(x)&=\frac{2E\varepsilon k_B T}{\eta q}\cdot\left\{\log\left[\cos\left(\frac{qC}{2k_B T}\cdot x\right)\right]-\log\left[\cos\left(\frac{dqC}{4k_B T}\right)\right]\right\},\\
 	\end{align*}
-Here the integration constants were chosen so that no-slip boundary
-conditions are fulfilled a $z = \pm l/2$.
+Obtaining the particle flux profile is the easy:
+\begin{equation}
+  j_y / \rho = \mu E + u_y.
+\end{equation}
 
 Before simulating the full system, we make two steps in between, because
 we need to know how to have walls in an \ES{} simulation. First we want
@@ -131,7 +138,7 @@ Poisseuille flow is the flow through a pipe or (in our case) a slit
 under a homogenous force density, e.g. gravity. In the limit of small Reynolds
 numbers, the flow can be described with the Stokes equation. 
 We assume the slit being infinitely extended in $y$ and $z$ 
-direction and an external electric field $E$
+direction and an force density $f$ on the fluid 
 in $y$ direction. No slip-boundary conditions  (i.e. $\vec{u}=0$)
 are located at $z = \pm l/2$.
 Assuming invariance in $y$ and $z$ direction and a steady state 
@@ -146,7 +153,7 @@ so that $u_y=0$ at $z = \pm l/2$ and we obtain:
   u_y = \frac{f}{2\eta} \left(l^2/4-x^2\right)
 \end{equation}
 With that knowledge investigate the script poisseuille.tcl.
-Note the \lstinline{lb_boundary} command. Two walls are created
+Note the \lstinline{lbboundary} command. Two walls are created
 with normal vectors $\left(\pm 1, 0, 0 \right)$. An external force
 is applied to every node. After 1000 LB updates the steady state should
 be reached.
@@ -193,11 +200,14 @@ this distance times the normal vector is a point of the plane. For inclined
 walls this syntax is more easy to understand.
 
 \ES{} complains every time a particle penetrates the wall, as it does not
-expect the particles to do so. This should normally cause no problem. 
+expect the particles to do so. This complaint should be taken serious, because
+that means the particle has overcome LJ potential barrier, which is physically
+impossible. This usually tells you to reduce the applied time step.
 
 To set up a system we have, of course to make sure, that our initial
 configuration obeys the constraints. The easiest thing is to 
-generate particle configurations randomly and repeat this process
+generate particle particle positions randomly and check if it obeys the constraint.
+If not we repeat this process
 for every particle until a configuration is found, that
 is within the allowed range. Look at the script \lstinline|boundaries.tcl|
 and see how that is solved. What does the script do?
@@ -264,6 +274,14 @@ the overall system is neutral.
      take into account ion correlations and the effect of the finite size
      of ions.
 \end{enumerate}
+Following this list should in principle enable you to simulate the system. However
+we have figured out that quite some traps are on the way to the full system. You might
+have to make warmup steps in between, play with the time step and so on until your
+simulation script is really stable. If something happens, make sure you check all
+the stages in between, or make simplifications e.g. disabling the electrostatic interactions.
+This is however part of the process 
+to learn \ES{}. If it takes you some time, do not be disappointed, but 
+consider it a part of your learning curve.
 
 
 

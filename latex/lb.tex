@@ -4,7 +4,7 @@
 
 Here we want to repeat a few very basic facts about the LBM. 
 You will find much better introductions in various books and
-articles, e.g. \cite{succi, duenweg}. It will however help clarifying 
+articles, e.g. \cite{succi01a, duenweg09a}. It will however help clarifying 
 our choice of words and we will eventually say something about the 
 implementation in \ES{}. It is very loosely written, with the goal that
 the reader understands how the LBM works and what \ES{} does without
@@ -75,8 +75,8 @@ of the $f_i$ and that they carry the most important information. They
 are 10 independent variables, but this is not enough to store the
 full information of 19 populations. Therefore 9 additional quantities
 are introduced. Together they form a different basis set of the
-19-dimensional population space. This new basis set is called
-the modes $m_i$. Indeed the most practical basis is a little bit different:
+19-dimensional population space, the modes space and the modes are denoted by 
+$m_i$. Indeed the most practical basis is a little bit different:
 It contains the trace of the pressure tensor and two orthogonal 
 vectors instead of the three diagonal elements of the pressure 
 tensor. The 9 extra modes are referred to as kinetic modes or
@@ -114,22 +114,33 @@ $\sum f_i \log f_i$ under the constraint that the density
 and velocity take their particular instantaneous 
 values. 
 
+In mode space the equilbrium distribution is calculated much from 
+the local density and velocity.
+The kinetic modes 11-19 have the value 0 in equilibrium.
+The collision operator is diagonal in mode space
+and has the form
+\begin{align*}
+  m^\star_i &= \gamma_i \left( m_i - m_i^\text{eq} \right) + m_i ^\text{eq}.
+\end{align*}
+Here $m^\star_i$ is the $i$th mode after the collision.
+In words we would say: Each mode is relaxed is relaxed towards
+its equilibrium value with a relaxation rate $\gamma_i$.
+The conserved modes are not relaxed, or, the corresponding
+relaxation parameter is one.
 
-In mode space the equilibrium distribution is again very 
-easily formulated: The modes 5-19 have the value 0 in equilibrium.
-
-The modes are chosen so that the collision operator is diagonal:
+By symmetry consideration one finds that only four independent
+relaxation rates are allowed. We summarize them here.
 \begin{align*}
   m^\star_i &= \gamma_i m_i  \\
   \gamma_1=\dots=\gamma_4&=1 \\
   \gamma_5&=\gamma_\text{b} \\
   \gamma_6=\dots=\gamma_{10}&=\gamma_\text{s} \\
-  \gamma_{11}&=\gamma_\text{even} \\
-  \gamma_{12}=\dots = \gamma_{19}&=\gamma_\text{odd} \\
+  \gamma_{11}=\dots=\gamma_{16}&=\gamma_\text{odd} \\
+  \gamma_{17}=\dots = \gamma_{19}&=\gamma_\text{even} \\
 \end{align*}
 
 To include hydrodynamic fluctuations of the fluid, 
-random fluctuations are added to the modes $4\dots 19$ on every LB node so that
+random fluctuations are added to the nonconserved modes $4\dots 19$ on every LB node so that
 the LB fluid temperature is well defined and the corresponding
 fluctuation formula, according to the fluctuation dissipation theorem holds.
 An extensive discussion of this topic is found in \cite{duenweg07a}
@@ -137,7 +148,7 @@ An extensive discussion of this topic is found in \cite{duenweg07a}
 \subsection*{Particle coupling}
 
 Particles are coupled to the LB fluid with the force coupling:
-The fluid velocity at the point where a particle is, is calculated 
+The fluid velocity at the position of a a particle is, is calculated 
 by a multilinear interpolation and a force is applied on the particle
 that is proportional to the velocity difference between particle 
 and fluid:
@@ -146,15 +157,14 @@ and fluid:
   \label{eq:model-lbcoupling}
 \end{equation}
 The opposite force is distributed on the surrounding LB nodes. Additionally
-a random force is added to maintain a constant temperature, again according
+a random force is added to maintain a constant temperature, according
 to the fluctuation dissipation theorem. 
 \begin{figure}[htp]
 \begin{center}
    \includegraphics[height=0.3\textheight]{../figs/latticeboltzmann-momentumexchange}
    \caption{The coupling scheme between fluid and particles is based on the
-   interpolation of the fluid velocity $\vec{u}$ from the grid nodes marking
-   the cell the particle is in to the actual position $\vec{r}$ of the
-   particle. This is done by linear interpolation. The difference between the
+   interpolation of the fluid velocity $\vec{u}$ from the grid nodes.  
+   This is done by linear interpolation. The difference between the
    actual particle velocity $\vec{v}(t)$ and the interpolated velocity
    $\vec{u}(\vec{r},t)$ is used in the momentum exchange of
    Equation~\ref{eq:model-lbcoupling}.}

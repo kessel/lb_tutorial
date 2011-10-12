@@ -42,8 +42,19 @@ you to reproduce textbook results.
 The third purpose is to show how the LBM can be used with the
 \ES{} simulation package. 
 
-\section*{\ES{} Version}
+\section*{Notes on the \ES{} version you will need}
 You need at least \ES{} Version 3.0 to work yourself through this 
 tutorial. The LBM implementation is still being improved and it is advisable
 to check, if there is something new in newer version. We are happy 
 about corrections, suggestions and your participation in the code developement.
+
+For the tutorial you will have to compile in the following  features:
+\lstinline|PARTIAL_PERIODIC|, \lstinline|ELECTROSTATICS|, \lstinline|EXTERNAL_FORCES|, \lstinline|CONSTRAINTS|,
+\lstinline|LB|, \lstinline|LB_BOUNDARIES|, \lstinline|LENNARD_JONES|.
+
+The executable you obtain should be able to run all simulations.
+
+All necessary files for this tutorial are located in the directory \lstinline|lb_tutorial/src|.
+
+
+
