@@ -4,7 +4,7 @@ if { $argc != 1 } {
   puts "-----------"
   puts "Diffusion of a single polymer chain in a lattice boltzmann fluid"
   puts "Please pass the number of monomers as a command line argument!"
-  puts "./Espresso polymer.tcl #procs #monomers"
+  puts "./Espresso polymer.tcl #monomers"
   puts ""
   puts "output: pos.dat v.dat"
   puts "The files contain the time elapsed in the simulation and the center"
@@ -51,15 +51,17 @@ puts "Done."
 inter ljforcecap 0.
 integrate 10000
 setmd time_step 0.01
-integrate 20000
-
+integrate 10000
 stop_particles
+
 #introduce the LB fluid here!
+#and switch the thermostat to LB
 
+## warm up the system again
 integrate 1000
-thermostat off
 
-for { set i 0 } { $i < 10000 } { incr i } {
+# Main integration loop
+for { set i 0 } { $i < 1000 } { incr i } {
   imd positions
     integrate 100
     set vx 0.
@@ -75,4 +77,10 @@ for { set i 0 } { $i < 10000 } { incr i } {
     puts $vfile "[ setmd time ]  [ expr $vx/$nummon ] [ expr $vy/ $nummon ] [ expr $vz/ $nummon ]"
     puts $rgfile "[ setmd time ] [ analyze rg 0 1 $nummon ]"
     puts $rhfile "[ setmd time ] [ analyze rh 0 1 $nummon ]"
+    puts "step $i" 
+    ## flush output files
+    flush $posfile
+    flush $vfile
+    flush $rgfile
+    flush $rhfile
 }

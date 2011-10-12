@@ -24,6 +24,7 @@ print "max_size: $max_size\n";
 $t_max = $lines - $max_size;
 print "t_max: $t_max\n";
 $delta_t= $temp2[0] - $temp1[0];
+$max_size=100;
 
 for($tau=0;$tau<=$max_size;$tau++){
   print "$tau\n";

@@ -37,7 +37,7 @@ In this script an LB fluid and a single particle are created and LB is
 used to thermostat the system. The random forces on the particle and
 within the LB fluid will cause the particle to move, and its position
 is recorded in the file  \lstinline|pos.dat|. 
-Run the simulation script for 10000 steps
+Run the simulation script for 100000 steps (by default it is only 10000)
 and use the helper script  \lstinline|msd.pl| to calculate the MSD: 
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
@@ -67,11 +67,11 @@ Use a linear fit to determine the diffusion coefficient:
 {\vspace{0,2cm}\small
 \begin{lstlisting}[numbers=none]
 f(x)=a*x+b
-fit [1:] msd_pos.dat via a,b
+fit [5:] msd_pos.dat via a,b
 \end{lstlisting}\vspace{0,2cm}
 }
 The square brackets in the fit command tell \lstinline{gnuplot}
-only to use the range right of $x=1$ for the fit.
+only to use the range right of $x=5$ for the fit.
 
 The file \lstinline|energy.dat| contains the kinetic energy of the
 particle as a function of the elapsed simulation time. Investigate

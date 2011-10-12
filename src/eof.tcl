@@ -26,8 +26,8 @@ for { set y 0 } { $y < $box_l } { incr y } {
 }
 
 ## constraints for the counterions
-constraint wall dist 1.5 normal 1. 0. 0. type 2
-constraint wall dist -14.5 normal -1. 0. 0. type 2
+constraint wall dist 1.5 normal 1. 0. 0. type 1
+constraint wall dist -14.5 normal -1. 0. 0. type 1
 
 ## the ion-ion and ion-wall interaction potential
 inter 1 2 lennard-jones 1. 1. 1.225 0.25 0.
@@ -48,7 +48,7 @@ for { set i 0 } { $i < 50 } { incr i } {
     set z [ expr 16 * [ t_random ] ]
     # if the particle is between the walls
     if { $x > 3. && $x < 13. } {
-      part $partcounter pos $x $y $z type 0
+      part $partcounter pos $x $y $z type 2
       # check if two particles overlap
       if { $i == 0 || [ analyze mindist ] >= 1. } {
         incr partcounter
@@ -125,7 +125,4 @@ close $den_file
 close $flux_file
 close $vel_file
 
-## the main integration loop
 
-
-## write the output files
