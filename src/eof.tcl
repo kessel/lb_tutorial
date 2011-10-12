@@ -80,7 +80,7 @@ integrate 1000
 
 set nbins 16
 set samples 0
-## These two lists will con
+## These two lists will contain the density and flux density profiles
 set density_profile [ list ]
 set flux_profile [ list ]
 for { set i 0 } { $i < $nbins } { incr i } {
